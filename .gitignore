@@ -1,0 +1,18 @@
+# sistema
+.DS_Store
+Thumbs.db
+# entorno
+.env
+*.secret
+secrets.toml
+# pipeline (artefactos pesados, no versionar)
+pipeline/work/
+pipeline/audio/
+pipeline/transcripts/
+*.mp4
+*.mov
+*.wav
+*.mp3
+__pycache__/
+*.pyc
+node_modules/
