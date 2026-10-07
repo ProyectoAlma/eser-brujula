@@ -21,9 +21,14 @@ multiplicar el alcance de ambos.
 ## Estructura del repo
 
 ```
-dashboard/     Fuente del dashboard (index.html + radar.json + eser.png). Estático.
-data/          roster.csv — export semilla de la planilla (30 invitados).
-pipeline/      Corrida interna (lectura de videos + matching). Ver pipeline/PLAN.md. [roadmap]
+dashboard/            Fuente del dashboard (index.html + radar.json + eser.png). Estático.
+data/
+  entrevistados.csv   Lista maestra (export de la planilla, 30 invitados).
+  fichas/             Una ficha .md por invitado — acá vamos agregando info de cada uno.
+                      (_PLANTILLA.md es el molde para copiar.)
+episodios/            Info por episodio/video (metadatos; luego transcripciones y clips).
+                      (_PLANTILLA.md es el molde para copiar.)
+pipeline/             Corrida interna (lectura de videos + matching). Ver pipeline/PLAN.md. [roadmap]
 ```
 
 ## Cómo se actualiza el dashboard
