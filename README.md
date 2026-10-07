@@ -1,47 +1,42 @@
-# ESER · Radar de Entrevistados
+# La Brújula de ESER 🧭
 
-Radar vivo de los invitados del podcast **ESER** (una creación de René Boiero × Osmos Global).
-Detecta, semana a semana, **qué invitado está en auge** (un libro, una gala, una nota, un
-lanzamiento) para que ESER **suba su fragmento en el momento justo y surfee esa ola**:
-republicar el clip de la entrevista cuando esa persona está en boca de todos, etiquetarla y
-multiplicar el alcance de ambos.
+> **El motor de decisión de contenido de ESER.** Marca **qué publicar y cuándo**: qué episodio
+> sacar, qué reel editar y de qué invitado — según lo que está pasando en el mundo y lo que hay
+> dentro de las entrevistas. (ESER es una creación de René Boiero × Osmos Global.)
 
-## Las 3 piezas del sistema
+## La lógica de la brújula
+La decisión nace de cruzar tres señales:
 
-1. **Planilla** (fuente editable) — Google Sheet en el drive compartido de ESER. Una fila por
-   invitado: datos, redes, última señal, próximo hito, **oportunidad de amplificación** y
-   **prioridad** (🔥 ola fuerte · 👀 seguir · 💤 sin novedades).
-2. **Dashboard** (`/dashboard`) — página con la identidad de ESER (azul petróleo, crema,
-   dorado, cian + logo). Muestra el radar priorizado y las oportunidades. Se alimenta de
-   `dashboard/radar.json` (datos) y es estática (hosteable en cualquier lado).
-3. **Automatización** — tarea programada que corre **lunes y jueves**: investiga novedades de
-   cada invitado (prensa, webs, Instagram, YouTube, Spotify), actualiza la planilla, refresca
-   `radar.json` y envía un resumen con las oportunidades de la semana.
+1. **Quién está en auge** — el *Radar de entrevistados*: qué invitado tiene un momento caliente
+   ahora (un libro, una gala, una nota, un lanzamiento).
+2. **Qué hay dentro de las entrevistas** — la *lectura de videos*: los mejores momentos y frases
+   de cada episodio grabado.
+3. **El match** — se unen las dos: «esta semana publicá el episodio de X / este reel con esta
+   frase, porque la persona está en boca de todos». Eso es lo que apunta la brújula.
+
+## Componentes
+1. **Planilla** (fuente editable) — Google Sheet en el drive de ESER. Una fila por invitado:
+   datos, redes, última señal, próximo hito, **oportunidad de amplificación** y **prioridad**.
+2. **Dashboard** (`/dashboard`) — la vista del radar, con la identidad de ESER. Se alimenta de
+   `dashboard/radar.json`. Estático y hosteable.
+3. **Automatización** — corre **lunes y jueves**: investiga novedades de cada invitado, actualiza
+   la planilla, refresca el dashboard y manda un resumen con las oportunidades de la semana.
+4. **Pipeline de videos** (`/pipeline`) — lee los videos, transcribe, extrae momentos potentes y
+   **matchea** cada momento con la oportunidad del invitado → sugiere el clip exacto. [roadmap]
 
 ## Estructura del repo
-
 ```
-dashboard/            Fuente del dashboard (index.html + radar.json + eser.png). Estático.
+dashboard/            Vista del radar (index.html + radar.json + eser.png). Estático.
 data/
-  entrevistados.csv   Lista maestra (export de la planilla, 30 invitados).
+  entrevistados.csv   Lista maestra (export de la planilla).
   fichas/             Una ficha .md por invitado — acá vamos agregando info de cada uno.
-                      (_PLANTILLA.md es el molde para copiar.)
 episodios/            Info por episodio/video (metadatos; luego transcripciones y clips).
-                      (_PLANTILLA.md es el molde para copiar.)
-pipeline/             Corrida interna (lectura de videos + matching). Ver pipeline/PLAN.md. [roadmap]
+pipeline/             Lectura de videos + matching. Ver pipeline/PLAN.md. [roadmap]
 ```
 
 ## Cómo se actualiza el dashboard
-
-El dashboard lee `dashboard/radar.json` ({ fecha, guests[] }). Para actualizarlo, se
-regenera ese archivo desde la planilla y se vuelve a publicar. El HTML no necesita tocarse.
-
-## Roadmap — la corrida interna de videos
-
-El próximo gran paso: **leer los videos de las entrevistas y su contenido** para **matchear**
-cada momento potente con la oportunidad de amplificación de cada invitado. Así, cuando Tati
-presenta su libro, el sistema no solo avisa "subí a Tati": sugiere **el clip exacto** de su
-entrevista (timestamp, frase, copy y a quién etiquetar). Detalle en `pipeline/PLAN.md`.
+Lee `dashboard/radar.json` ({ fecha, guests[] }). Se regenera desde la planilla y se republica;
+el HTML no se toca.
 
 ## Enlaces
 - Planilla: https://docs.google.com/spreadsheets/d/1Lld0mYgujAi7wvZ2_AwnSZH6Er71JJU6KswAWmNH1bA/edit
