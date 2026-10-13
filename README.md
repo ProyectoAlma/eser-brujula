@@ -34,10 +34,25 @@ episodios/            Info por episodio/video (metadatos; luego transcripciones 
 pipeline/             Lectura de videos + matching. Ver pipeline/PLAN.md. [roadmap]
 ```
 
+## La web (publicación)
+La web **es la carpeta `dashboard/`** (estática). Se publica con **GitHub Pages** mediante el
+workflow `.github/workflows/pages.yml`: cada push a `main` que toque `dashboard/` reconstruye y
+publica el sitio solo. No hay build.
+
+Puesta en marcha (una vez): en GitHub → **Settings → Pages → Build and deployment → Source:
+GitHub Actions**. Con eso, la URL pública queda en `https://proyectoalma.github.io/eser-brujula/`.
+(La app de Streamlit — `streamlit_app.py` — queda como herramienta interna de playground del modelo,
+no como la web pública.)
+
+Alternativa: Netlify (import del repo, publish directory `dashboard`). Equivale a lo mismo.
+
 ## Cómo se actualiza el dashboard
-Lee `dashboard/radar.json` ({ fecha, guests[] }). Se regenera desde la planilla y se republica;
-el HTML no se toca.
+Lee `dashboard/radar.json` ({ fecha, guests[] }). La automatización de lunes y jueves investiga
+las novedades, regenera `radar.json` y lo **commitea al repo**; el push dispara el workflow y la web
+se actualiza sola. El HTML no se toca. Para un arreglo puntual se puede editar `dashboard/radar.json`
+directo desde la web de GitHub.
 
 ## Enlaces
 - Planilla: https://docs.google.com/spreadsheets/d/1Lld0mYgujAi7wvZ2_AwnSZH6Er71JJU6KswAWmNH1bA/edit
-- Dashboard: https://claude.ai/artifact/1D7VMHRwNNF5NM3udo3H23
+- Web (GitHub Pages, una vez habilitada): https://proyectoalma.github.io/eser-brujula/
+- Dashboard (artifact, versión previa): https://claude.ai/artifact/1D7VMHRwNNF5NM3udo3H23
