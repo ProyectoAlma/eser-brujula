@@ -303,6 +303,20 @@ section{margin-block:10px 34px}
   width:34px;height:34px;border-radius:50%;font-size:1.05rem;display:grid;place-items:center}
 .refreshbtn:hover{color:var(--cyan2);border-color:var(--cyan)}
 .refreshbtn.spin{animation:spin .9s linear}
+/* cinta de tendencias en vivo (Google Trends) */
+.ticker-wrap{display:flex;align-items:center;gap:12px;margin-bottom:18px;min-width:0}
+.ticker-tag{flex:0 0 auto;font-family:var(--f-mono);font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--indigo2);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.ticker-tag .lv{width:7px;height:7px;border-radius:50%;background:var(--indigo);box-shadow:0 0 8px var(--indigo);animation:ping 1.8s ease-out infinite}
+.ticker{position:relative;flex:1 1 auto;overflow:hidden;min-width:0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.ticker-track{display:inline-flex;gap:10px;white-space:nowrap;will-change:transform;animation:marquee 55s linear infinite}
+.ticker-wrap:hover .ticker-track{animation-play-state:paused}
+.tchip{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;font-size:.8rem;color:var(--fg);text-decoration:none;
+  border:1px solid rgba(139,156,255,.26);background:rgba(124,134,240,.1);padding:5px 11px;border-radius:999px}
+.tchip:hover{border-color:var(--indigo);background:rgba(124,134,240,.22)}
+.tchip .fl{font-size:.82em;opacity:.85}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (max-width:560px){ .ticker-wrap{flex-direction:column;align-items:flex-start;gap:7px} .ticker{width:100%} }
+@media (prefers-reduced-motion:reduce){ .ticker{overflow-x:auto} .ticker-track{animation:none} .ticker-tag .lv{animation:none} }
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes breathe{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.85;transform:scale(1.08)}}
 @keyframes ping{0%{box-shadow:0 0 0 0 var(--hotglow)}70%{box-shadow:0 0 0 10px rgba(255,154,66,0)}100%{box-shadow:0 0 0 0 rgba(255,154,66,0)}}
@@ -371,6 +385,10 @@ section{margin-block:10px 34px}
     y encendidas son las olas que conviene mover ya.</p>
 
   <section class="trends">
+    <div class="ticker-wrap" id="ticker-wrap">
+      <span class="ticker-tag"><span class="lv"></span>Lo que se busca hoy</span>
+      <div class="ticker"><div class="ticker-track" id="ticker-track"></div></div>
+    </div>
     <div class="shead"><h2>🌐 Tendencias mundiales</h2><span class="rule"></span><span class="tag" id="trend-when">—</span></div>
     <p class="tsub">Lo que se habla en el mundo y en las redes, leído desde el alma — con una idea lista para un vivo o podcast que sume seguidores.</p>
     <div class="carousel-wrap">
@@ -831,6 +849,15 @@ section{margin-block:10px 34px}
     }
   ]
 }</script>
+<script id="seedlive" type="application/json">{
+  "actualizado": "14 oct 2026",
+  "fuente": "Google Trends — búsquedas del día",
+  "geos": [
+    { "g": "AR", "items": ["la isla del sol", "terremoto", "crónica", "betano", "roña castro", "character ai", "diario olé", "sebastián villa", "pamela david"] },
+    { "g": "CR", "items": ["latinoamérica", "carlos barahona", "nayib bukele", "josé giacone", "terremoto", "marcel hernández", "combustible", "fiscal general", "aguinaldo"] },
+    { "g": "ES", "items": ["apagón", "aryna sabalenka", "joyería", "álex gonzález", "olga moreno", "peatón", "sira martínez", "anabel pantoja", "deuda pública"] }
+  ]
+}</script>
 <script>
 /* ---------- datos ---------- */
 var SEED = {};
@@ -1022,6 +1049,29 @@ function renderTrends(){
 })();
 renderTrends();
 
+/* ---------- cinta en vivo (Google Trends) ---------- */
+var LIVE={}; try{LIVE=JSON.parse(document.getElementById('seedlive').textContent)||{};}catch(e){LIVE={};}
+var FLAG={AR:"🇦🇷",CR:"🇨🇷",ES:"🇪🇸",MX:"🇲🇽",US:"🇺🇸",CO:"🇨🇴",CL:"🇨🇱",UY:"🇺🇾"};
+function renderTicker(){
+  var track=document.getElementById('ticker-track'), wrap=document.getElementById('ticker-wrap');
+  if(!track||!wrap) return;
+  var geos=Array.isArray(LIVE.geos)?LIVE.geos:[];
+  var chips=[];
+  geos.forEach(function(geo){
+    var fl=FLAG[geo.g]||"🌐";
+    (Array.isArray(geo.items)?geo.items:[]).forEach(function(term){
+      if(!term) return;
+      var url='https://www.google.com/search?q='+encodeURIComponent(term);
+      chips.push('<a class="tchip" href="'+url+'" target="_blank" rel="noopener"><span class="fl">'+fl+'</span>'+esc(term)+'</a>');
+    });
+  });
+  if(!chips.length){ wrap.style.display='none'; return; }
+  wrap.style.display='flex';
+  /* duplicado para que el marquee sea continuo */
+  track.innerHTML=chips.join("")+chips.join("");
+}
+renderTicker();
+
 /* ---------- KPIs + init ---------- */
 function initAll(){
   var grab=DATA.filter(function(g){return g.e==="grab";}).length;
@@ -1051,6 +1101,9 @@ function pull(){
   }).catch(function(){});
   fetch('./tendencias.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
     if(j && Array.isArray(j.temas) && j.temas.length){ TREND=j; TEMAS=j.temas; renderTrends(); }
+  }).catch(function(){});
+  fetch('./trends_live.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+    if(j && Array.isArray(j.geos) && j.geos.length){ LIVE=j; renderTicker(); }
   }).catch(function(){});
 }
 (function boot(){

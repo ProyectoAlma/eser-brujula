@@ -1,0 +1,9 @@
+{
+  "actualizado": "14 oct 2026",
+  "fuente": "Google Trends — búsquedas del día",
+  "geos": [
+    { "g": "AR", "items": ["la isla del sol", "terremoto", "crónica", "betano", "roña castro", "character ai", "diario olé", "sebastián villa", "pamela david"] },
+    { "g": "CR", "items": ["latinoamérica", "carlos barahona", "nayib bukele", "josé giacone", "terremoto", "marcel hernández", "combustible", "fiscal general", "aguinaldo"] },
+    { "g": "ES", "items": ["apagón", "aryna sabalenka", "joyería", "álex gonzález", "olga moreno", "peatón", "sira martínez", "anabel pantoja", "deuda pública"] }
+  ]
+}
