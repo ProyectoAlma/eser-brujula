@@ -21,6 +21,7 @@
   --hot:#ff9a42; --hot2:#ffc58a; --hotglow:rgba(255,154,66,.55);
   --watch:#5bd2f0; --watchglow:rgba(91,210,240,.42);
   --quiet:#6a8197;
+  --indigo:#8b9cff; --indigo2:#bcc5ff; --indigoglow:rgba(124,134,240,.4);
   /* type */
   --f-display:"Syne","Hanken Grotesk",system-ui,sans-serif;
   --f-body:"Hanken Grotesk",system-ui,-apple-system,sans-serif;
@@ -259,27 +260,39 @@ section{margin-block:10px 34px}
 .ejes .e{display:flex;align-items:center;gap:7px;font-size:.84rem;color:var(--muted)}
 .ejes .e b{font-family:var(--f-mono);color:var(--cyan2);font-weight:700;border:1px solid var(--line2);
   border-radius:6px;padding:0 6px;font-size:.78rem}
-/* tendencias (carrusel) */
-.trends{margin-block:8px 32px}
+/* tendencias (carrusel) — zona índigo, distinta del cian de invitados */
+.trends{margin-block:12px 34px;position:relative;border-radius:22px;padding:22px 22px 24px;
+  background:
+    radial-gradient(120% 100% at 0% 0%, rgba(124,134,240,.17), transparent 55%),
+    radial-gradient(120% 120% at 100% 0%, rgba(150,110,230,.12), transparent 50%),
+    linear-gradient(180deg, rgba(22,24,54,.62), rgba(12,14,32,.5));
+  border:1px solid rgba(139,156,255,.24);
+  box-shadow:0 20px 60px rgba(40,30,110,.28)}
+.trends::before{content:"";position:absolute;left:22px;right:22px;top:0;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--indigo),transparent);opacity:.75}
+.trends .shead .rule{background:linear-gradient(90deg,rgba(139,156,255,.5),transparent)}
+.trends .shead .tag{color:var(--indigo2)}
+.trends .carbtn:hover{border-color:var(--indigo);color:var(--indigo2)}
+.trends .carousel{scrollbar-color:rgba(139,156,255,.4) transparent}
 .tsub{color:var(--muted);max-width:68ch;margin:-4px 0 16px;font-size:.96rem}
 .carousel-wrap{position:relative}
 .carousel{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 12px;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
 .carousel::-webkit-scrollbar{height:8px}
 .carousel::-webkit-scrollbar-thumb{background:var(--line2);border-radius:999px}
 .tcardx{position:relative;flex:0 0 302px;max-width:84vw;scroll-snap-align:start;overflow:hidden;isolation:isolate;
-  border:1px solid var(--line);border-radius:16px;background:var(--glass);backdrop-filter:blur(8px);
+  border:1px solid rgba(139,156,255,.24);border-radius:16px;background:rgba(28,30,64,.52);backdrop-filter:blur(8px);
   padding:16px 16px 17px;display:flex;flex-direction:column;gap:8px}
-.tcardx .neb{position:absolute;inset:0;z-index:-1;opacity:.4}
+.tcardx .neb{position:absolute;inset:0;z-index:-1;opacity:.26}
 .tx-where{align-self:flex-start;font-family:var(--f-mono);font-size:.57rem;font-weight:700;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--gold2);border:1px solid rgba(240,196,107,.3);background:rgba(240,196,107,.1);
+  text-transform:uppercase;color:var(--indigo2);border:1px solid rgba(139,156,255,.36);background:rgba(139,156,255,.13);
   padding:3px 9px;border-radius:999px}
 .tcardx h3{font-family:var(--f-display);font-weight:700;font-size:1.12rem;margin:2px 0 0;line-height:1.14;text-wrap:balance}
 .tx-que{font-size:.85rem;color:var(--muted);margin:0}
 .tx-alma,.tx-idea{font-size:.84rem;color:var(--fg);border-radius:11px;padding:10px 11px}
-.tx-alma{background:rgba(91,210,240,.08);border:1px solid rgba(91,210,240,.2)}
+.tx-alma{background:rgba(124,134,240,.12);border:1px solid rgba(139,156,255,.28)}
 .tx-idea{background:rgba(255,154,66,.09);border:1px solid rgba(255,154,66,.24);margin-top:auto}
 .tx-alma .l,.tx-idea .l{display:block;font-family:var(--f-mono);font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
-.tx-alma .l{color:var(--cyan2)} .tx-idea .l{color:var(--hot2)}
+.tx-alma .l{color:var(--indigo2)} .tx-idea .l{color:var(--hot2)}
 .carbtn{position:absolute;top:calc(50% - 22px);z-index:5;width:40px;height:40px;border-radius:50%;cursor:pointer;
   border:1px solid var(--line2);background:rgba(10,16,30,.85);color:var(--fg);font-size:1.3rem;line-height:1;
   display:grid;place-items:center;backdrop-filter:blur(6px)}
