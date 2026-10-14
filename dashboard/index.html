@@ -1,302 +1,1080 @@
-<title>Radar ESER</title>
-<meta name="description" content="Radar de entrevistados de ESER: oportunidades de amplificación semana a semana.">
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>Brújula ESER</title>
+<meta name="description" content="Radar de entrevistados de ESER — a quién amplificar esta semana, en un observatorio nocturno vivo.">
+
 <style>
-/* Layout: encabezado fijo con marca + KPIs, barra de filtros, y secciones por prioridad (olas fuertes → seguir → resto). Mundo visual único: noche/velvet. */
+/* ============================================================
+   BRÚJULA ESER — observatorio nocturno
+   Layout: cielo animado en canvas + héroe-portal con el logo;
+   tarjetas-"estación" que cambian de tamaño y energía según la
+   prioridad (🔥/👀/💤) y el alcance real de cada invitado.
+   Identidad deliberadamente oscura (noche / alma / cosmos).
+   ============================================================ */
 :root{
-  --bg:#071826; --bg2:#0c2234; --card:#0f2738; --card2:#143047;
-  --line:rgba(173,214,230,.11); --line2:rgba(173,214,230,.18);
-  --fg:#eef1ea; --muted:#9cb3bf; --faint:#6b8290;
-  --brand:#56c6e6; --brand2:#86d7ef; --gold:#e9b25a; --gold2:#f4ca80;
-  --hot:#eab04a; --hot-bg:rgba(234,176,74,.13);
-  --watch:#56c6e6; --watch-bg:rgba(86,198,230,.12);
-  --quiet:#6f8795; --quiet-bg:rgba(111,135,149,.12);
-  color-scheme:dark;
-  --maxw:1120px;
-  --f-display:"Fraunces",Georgia,"Times New Roman",serif;
+  color-scheme: dark;
+  /* color */
+  --space:#05070e; --space2:#0a1222; --ink:#070b16;
+  --glass:rgba(16,26,46,.55); --glass2:rgba(22,34,58,.72);
+  --line:rgba(130,185,225,.14); --line2:rgba(130,185,225,.26);
+  --fg:#eaf2f9; --muted:#9db2c6; --faint:#657a8f;
+  --cyan:#5bd2f0; --cyan2:#9fe9ff; --gold:#f0c46b; --gold2:#ffdc93;
+  --hot:#ff9a42; --hot2:#ffc58a; --hotglow:rgba(255,154,66,.55);
+  --watch:#5bd2f0; --watchglow:rgba(91,210,240,.42);
+  --quiet:#6a8197;
+  /* type */
+  --f-display:"Syne","Hanken Grotesk",system-ui,sans-serif;
   --f-body:"Hanken Grotesk",system-ui,-apple-system,sans-serif;
+  --f-mono:"Space Mono",ui-monospace,"SFMono-Regular",monospace;
+  --maxw:1180px;
 }
 *{box-sizing:border-box}
 body{
-  margin:0;background:
-    radial-gradient(100% 70% at 50% -5%, rgba(86,198,230,.14), transparent 55%),
-    radial-gradient(90% 70% at 92% 8%, rgba(233,178,90,.09), transparent 52%),
-    var(--bg);
-  color:var(--fg);font-family:var(--f-body);line-height:1.5;
-  -webkit-font-smoothing:antialiased;
+  margin:0;font-family:var(--f-body);color:var(--fg);line-height:1.55;
+  background:var(--space);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
 }
-.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:20px;padding-block:0}
-a{color:var(--brand2)}
+a{color:var(--cyan2);text-decoration:none}
 
-/* header */
-header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
-  background:linear-gradient(180deg,rgba(12,16,48,.96),rgba(12,16,48,.82));
-  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.top .wrap{display:flex;align-items:center;gap:16px;padding-block:14px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:13px;min-width:0}
-.logo{height:40px;width:auto;display:block;filter:drop-shadow(0 2px 10px rgba(0,0,0,.45))}
-.brand .div{width:1px;height:26px;background:var(--line2);flex:0 0 1px}
-.brand .sub{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);
-  font-weight:600;line-height:1.3}
-.updated{margin-left:auto;font-size:.76rem;color:var(--faint);text-align:right;line-height:1.3}
-.updated b{color:var(--muted);font-weight:600}
+/* ---- cielo de fondo ---- */
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+.veil{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(91,210,240,.18), transparent 55%),
+    radial-gradient(90% 70% at 88% 6%, rgba(240,196,107,.12), transparent 52%),
+    radial-gradient(100% 90% at 10% 110%, rgba(120,90,220,.14), transparent 55%),
+    linear-gradient(180deg, rgba(5,7,14,.2), rgba(5,7,14,.78) 60%, var(--space));
+}
+.wrap{position:relative;z-index:2;max-width:var(--maxw);margin:0 auto;padding-inline:20px}
 
-/* kpis */
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-block:22px}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 16px}
-.kpi .n{font-family:var(--f-display);font-size:2.1rem;font-weight:600;line-height:1;
+/* ---- nav slim ---- */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;
+  backdrop-filter:blur(12px);
+  background:linear-gradient(180deg,rgba(7,11,22,.86),rgba(7,11,22,.5));
+  border-bottom:1px solid var(--line)}
+.nav .row{display:flex;align-items:center;gap:14px;max-width:var(--maxw);margin:0 auto;
+  padding:11px 20px}
+.nav .mark{height:26px;width:auto;opacity:.95;cursor:pointer;filter:drop-shadow(0 2px 8px rgba(0,0,0,.5))}
+.nav .tag{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--faint);border:1px solid var(--line);padding:4px 9px;border-radius:999px}
+.nav .spacer{flex:1}
+.nav .when{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);text-align:right;line-height:1.3}
+.nav .when b{color:var(--cyan2);font-weight:700}
+
+/* ---- hero / portal ---- */
+.hero{position:relative;text-align:center;padding-block:54px 30px}
+.portal{position:relative;display:inline-grid;place-items:center;
+  width:188px;height:188px;margin:0 auto;cursor:pointer;background:none;border:0;padding:0}
+.portal .ring{position:absolute;border-radius:50%;border:1px solid var(--line2)}
+.portal .r1{inset:0;border-color:rgba(91,210,240,.35)}
+.portal .r2{inset:20px;border-color:rgba(240,196,107,.22)}
+.portal .r3{inset:40px;border-style:dashed;border-color:rgba(130,185,225,.2)}
+.portal .sweep{position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg, rgba(91,210,240,.0) 0deg, rgba(91,210,240,.0) 300deg, rgba(91,210,240,.45) 350deg, rgba(159,233,255,.0) 360deg);
+  animation:spin 6s linear infinite}
+.portal .glow{position:absolute;inset:34px;border-radius:50%;
+  background:radial-gradient(circle, rgba(91,210,240,.28), rgba(91,210,240,0) 70%);
+  filter:blur(6px);animation:breathe 5s ease-in-out infinite}
+.portal img{position:relative;z-index:2;height:74px;width:auto;filter:drop-shadow(0 4px 22px rgba(0,0,0,.6))}
+.portal:focus-visible{outline:2px solid var(--cyan);outline-offset:8px;border-radius:50%}
+.portal .hint{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+  font-family:var(--f-mono);font-size:.56rem;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--cyan2);white-space:nowrap;opacity:.0;transition:opacity .25s;background:rgba(7,11,22,.7);
+  padding:3px 8px;border-radius:999px;border:1px solid var(--line)}
+.portal:hover .hint,.portal:focus-visible .hint{opacity:1}
+
+.hero h1{font-family:var(--f-display);font-weight:800;font-size:clamp(1.9rem,5.5vw,3.2rem);
+  letter-spacing:-.015em;margin:22px 0 6px;text-wrap:balance;
+  background:linear-gradient(100deg,var(--fg) 20%,var(--cyan2) 55%,var(--gold2) 92%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .sub{color:var(--muted);max-width:60ch;margin:0 auto;font-size:1.02rem}
+.hero .sub b{color:var(--fg);font-weight:600}
+.hero .meta{margin-top:16px;display:inline-flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;
+  font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
+.hero .meta .dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.cta{margin-top:18px;display:inline-flex;gap:9px;align-items:center;cursor:pointer;
+  font-family:var(--f-mono);font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;
+  color:var(--ink);background:linear-gradient(100deg,var(--cyan2),var(--gold2));
+  border:0;padding:11px 20px;border-radius:999px;box-shadow:0 8px 30px rgba(91,210,240,.3)}
+.cta:hover{filter:brightness(1.07)}
+
+/* ---- kpis ---- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-block:30px}
+.kpi{position:relative;background:var(--glass);border:1px solid var(--line);border-radius:16px;
+  padding:16px 16px;overflow:hidden;backdrop-filter:blur(8px)}
+.kpi::after{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;
+  background:radial-gradient(circle,rgba(91,210,240,.18),transparent 70%)}
+.kpi.gold::after{background:radial-gradient(circle,rgba(240,196,107,.2),transparent 70%)}
+.kpi.hot::after{background:radial-gradient(circle,var(--hotglow),transparent 70%)}
+.kpi .n{font-family:var(--f-display);font-weight:800;font-size:2.15rem;line-height:1;
   font-variant-numeric:tabular-nums}
-.kpi.hot .n{color:var(--hot)} .kpi.gold .n{color:var(--gold)}
-.kpi .l{font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
-  margin-top:8px}
+.kpi.cyan .n{color:var(--cyan2)} .kpi.gold .n{color:var(--gold2)} .kpi.hot .n{color:var(--hot2)}
+.kpi .l{font-family:var(--f-mono);font-size:.63rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);margin-top:9px}
 
-/* intro */
-.intro{color:var(--muted);max-width:60ch;margin-block:4px 20px;font-size:1.02rem}
+.intro{color:var(--muted);max-width:66ch;margin:0 0 20px;font-size:1.02rem}
 .intro b{color:var(--fg);font-weight:600}
 
-/* filter bar */
-.filters{position:sticky;top:calc(env(safe-area-inset-top,0px) + 64px);z-index:10;
-  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-  padding-block:12px;margin-bottom:6px;background:linear-gradient(180deg,var(--bg),rgba(12,16,48,.6) 70%,transparent)}
+/* ---- filtros ---- */
+.filters{position:sticky;top:calc(env(safe-area-inset-top,0px) + 50px);z-index:20;
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-block:12px;margin-bottom:6px;
+  background:linear-gradient(180deg,var(--space) 30%,rgba(5,7,14,.7) 75%,transparent)}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
-.chip{border:1px solid var(--line2);background:transparent;color:var(--muted);
-  font:inherit;font-size:.86rem;font-weight:600;padding:7px 13px;border-radius:999px;cursor:pointer;
-  display:inline-flex;align-items:center;gap:7px}
-.chip:hover{border-color:var(--brand);color:var(--fg)}
-.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#0b0f2e}
-.chip .c{font-variant-numeric:tabular-nums;opacity:.8}
+.chip{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.04em;cursor:pointer;
+  border:1px solid var(--line2);background:rgba(16,26,46,.5);color:var(--muted);
+  padding:8px 14px;border-radius:999px;display:inline-flex;align-items:center;gap:7px;transition:.18s}
+.chip:hover{color:var(--fg);border-color:var(--cyan)}
+.chip .c{opacity:.7}
+.chip[aria-pressed="true"]{color:var(--ink);background:linear-gradient(100deg,var(--cyan2),var(--cyan));border-color:transparent;font-weight:700}
+.chip[data-f="hot"][aria-pressed="true"]{background:linear-gradient(100deg,var(--hot2),var(--hot))}
 .search{margin-left:auto;flex:1 1 200px;min-width:160px;max-width:300px}
-.search input{width:100%;background:var(--card);border:1px solid var(--line2);color:var(--fg);
-  font:inherit;padding:9px 13px;border-radius:999px}
+.search input{width:100%;background:rgba(10,16,30,.7);border:1px solid var(--line2);color:var(--fg);
+  font-family:var(--f-mono);font-size:.82rem;padding:10px 14px;border-radius:999px}
 .search input::placeholder{color:var(--faint)}
-.search input:focus{outline:2px solid var(--brand);outline-offset:1px;border-color:transparent}
+.search input:focus{outline:2px solid var(--cyan);outline-offset:1px;border-color:transparent}
 
-/* section */
-section{margin-block:14px 30px}
-.shead{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.shead h2{font-family:var(--f-display);font-weight:600;font-size:1.35rem;margin:0;text-wrap:balance}
-.shead .rule{flex:1;height:1px;background:var(--line)}
-.shead .tag{font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);
-  font-weight:600}
+/* ---- secciones ---- */
+section{margin-block:10px 34px}
+.shead{display:flex;align-items:baseline;gap:14px;margin-bottom:16px}
+.shead h2{font-family:var(--f-display);font-weight:700;font-size:1.4rem;margin:0;display:flex;align-items:center;gap:10px}
+.shead .rule{flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+.shead .tag{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
 
-/* cards grid */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;
-  display:flex;min-width:0}
-.card .stripe{width:5px;flex:0 0 5px}
-.card.hot .stripe{background:linear-gradient(var(--hot),var(--gold))}
-.card.watch .stripe{background:var(--watch)}
-.card .body{padding:16px 18px;min-width:0;flex:1}
-.card .top-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:2px}
-.card h3{font-family:var(--f-display);font-weight:600;font-size:1.18rem;margin:0;line-height:1.15}
-.card .pais{font-size:.76rem;color:var(--faint);margin-left:auto;white-space:nowrap;
-  padding-top:5px}
-.rubro{font-size:.82rem;color:var(--muted);margin:3px 0 10px}
-.badge{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.04em;
-  padding:3px 9px;border-radius:999px;text-transform:uppercase}
-.badge.grab{background:rgba(106,139,255,.16);color:var(--brand2)}
-.badge.dos{background:rgba(227,194,122,.14);color:var(--gold2)}
-.ep{font-size:.9rem;color:var(--fg);margin:2px 0 2px;font-style:italic;opacity:.92}
-.tema{font-size:.86rem;color:var(--muted);margin:0 0 12px}
-.rows{display:flex;flex-direction:column;gap:9px;margin-top:10px}
-.row{display:flex;gap:9px;font-size:.86rem;align-items:flex-start}
-.row .k{flex:0 0 18px;text-align:center;opacity:.9}
-.row .v{min-width:0;color:var(--muted)}
-.row .v b{color:var(--fg);font-weight:600}
-.opp{margin-top:12px;background:var(--hot-bg);border:1px solid rgba(240,182,74,.25);
-  border-radius:11px;padding:11px 12px}
-.card.watch .opp{background:var(--watch-bg);border-color:rgba(106,139,255,.25)}
-.opp .lab{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;font-weight:700;
-  color:var(--gold2);display:flex;align-items:center;gap:6px;margin-bottom:4px}
-.card.watch .opp .lab{color:var(--brand2)}
-.opp .txt{font-size:.9rem;color:var(--fg)}
+/* grids */
+.grid-hot{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.grid-watch{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-quiet{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 
-/* quiet list */
-.qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px;min-width:0}
-.q .qn{font-weight:600;font-size:.96rem;display:flex;gap:8px;align-items:baseline}
-.q .qn .qp{font-size:.72rem;color:var(--faint);margin-left:auto;white-space:nowrap}
-.q .qr{font-size:.78rem;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;
+/* tarjeta base */
+.card{position:relative;border-radius:18px;overflow:hidden;min-width:0;
+  border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(9px);
+  display:flex;flex-direction:column;isolation:isolate}
+.card .neb{position:absolute;inset:0;z-index:-1;opacity:.5}
+.card .body{padding:18px 18px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.card h3{font-family:var(--f-display);font-weight:700;margin:0;line-height:1.12;text-wrap:balance}
+.card .rubro{font-size:.82rem;color:var(--muted);margin:5px 0 0;min-width:0}
+.topline{display:flex;align-items:flex-start;gap:12px}
+.orb{flex:0 0 auto;border-radius:50%;display:grid;place-items:center;position:relative;
+  font-family:var(--f-mono);font-weight:700;color:#05121a;line-height:1}
+.orb .k{font-size:.68rem}
+.orb .u{font-size:.5rem;opacity:.75;margin-top:1px;letter-spacing:.05em}
+.flag{margin-left:auto;font-size:.95rem;filter:saturate(1.1)}
+.badge{display:inline-block;font-family:var(--f-mono);font-size:.6rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;padding:4px 9px;border-radius:999px}
+.badge.grab{background:rgba(91,210,240,.14);color:var(--cyan2);border:1px solid rgba(91,210,240,.3)}
+.badge.dos{background:rgba(240,196,107,.13);color:var(--gold2);border:1px solid rgba(240,196,107,.3)}
+.ep{font-size:.9rem;font-style:italic;color:var(--fg);opacity:.92;margin-top:10px}
+.tema{font-size:.86rem;color:var(--muted);margin-top:4px}
+.rows{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.r{display:flex;gap:9px;font-size:.85rem;align-items:flex-start}
+.r .k{flex:0 0 16px;text-align:center;opacity:.9}
+.r .v{min-width:0;color:var(--muted)}
+.r .v b{color:var(--fg);font-weight:600}
+.opp{margin-top:13px;border-radius:12px;padding:12px 13px;font-size:.88rem;color:var(--fg);
+  background:rgba(91,210,240,.08);border:1px solid rgba(91,210,240,.22)}
+.opp .lab{font-family:var(--f-mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:700;color:var(--cyan2);display:flex;align-items:center;gap:6px;margin-bottom:5px}
+
+/* HOT — estación destacada */
+.card.hot{border-color:rgba(255,154,66,.32)}
+.card.hot::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:18px;padding:1px;
+  background:linear-gradient(130deg,var(--hot),transparent 40%,transparent 60%,var(--gold));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;opacity:.8;animation:shimmer 7s linear infinite}
+.card.hot h3{font-size:1.5rem}
+.card.hot .live{display:inline-flex;align-items:center;gap:7px;align-self:flex-start;
+  font-family:var(--f-mono);font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--hot2);margin-bottom:2px}
+.card.hot .live .pulse{width:8px;height:8px;border-radius:50%;background:var(--hot);
+  box-shadow:0 0 0 0 var(--hotglow);animation:ping 1.8s ease-out infinite}
+.card.hot .opp{background:rgba(255,154,66,.1);border-color:rgba(255,154,66,.3)}
+.card.hot .opp .lab{color:var(--hot2)}
+.card.hot .badge.grab{background:rgba(255,154,66,.14);color:var(--hot2);border-color:rgba(255,154,66,.3)}
+
+/* WATCH */
+.card.watch h3{font-size:1.18rem}
+
+/* QUIET — tiles compactas */
+.qtile{position:relative;border:1px solid var(--line);background:rgba(12,20,36,.5);border-radius:14px;
+  padding:13px 14px;min-width:0;overflow:hidden}
+.qtile .neb{position:absolute;inset:0;z-index:-1;opacity:.35}
+.qtile .qn{font-family:var(--f-display);font-weight:700;font-size:.98rem;display:flex;gap:8px;align-items:baseline}
+.qtile .qn .qf{margin-left:auto;font-size:.85rem}
+.qtile .qr{font-size:.76rem;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.q .qe{font-size:.68rem;color:var(--faint);margin-top:7px}
+.qtile .qe{font-family:var(--f-mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);margin-top:9px}
 
-.empty{color:var(--faint);font-size:.9rem;padding:8px 2px}
-.note{color:var(--faint);font-size:.82rem;border-top:1px solid var(--line);margin-top:10px;
-  padding-block:22px 36px;max-width:70ch}
+.empty{color:var(--faint);font-family:var(--f-mono);font-size:.85rem;padding:14px 2px}
+.note{color:var(--faint);font-size:.8rem;border-top:1px solid var(--line);margin-top:14px;
+  padding-block:22px 40px;max-width:72ch}
 .note b{color:var(--muted)}
 
-@media (max-width:760px){
-  .kpis{grid-template-columns:repeat(2,1fr)}
-  .grid{grid-template-columns:1fr}
-  .qgrid{grid-template-columns:1fr}
-  .logo{height:34px}
-  .updated{margin-left:0;width:100%;text-align:left}
-  .search{margin-left:0;max-width:none;flex-basis:100%}
+/* ---- portal overlay (El Taller) ---- */
+.overlay{position:fixed;inset:0;z-index:100;display:none;place-items:center;padding:20px;
+  background:rgba(4,6,12,.72);backdrop-filter:blur(8px)}
+.overlay[aria-hidden="false"]{display:grid}
+.sheet{position:relative;width:min(680px,100%);max-height:86vh;overflow:auto;
+  background:linear-gradient(180deg,var(--glass2),rgba(10,16,30,.96));
+  border:1px solid var(--line2);border-radius:22px;padding:26px 24px 30px;
+  box-shadow:0 30px 90px rgba(0,0,0,.6)}
+.sheet .x{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;cursor:pointer;
+  border:1px solid var(--line2);background:rgba(10,16,30,.6);color:var(--muted);font-size:1.1rem;line-height:1}
+.sheet .x:hover{color:var(--fg);border-color:var(--cyan)}
+.sheet .eyebrow{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.26em;text-transform:uppercase;color:var(--cyan2)}
+.sheet h2{font-family:var(--f-display);font-weight:800;font-size:1.7rem;margin:6px 0 4px}
+.sheet .lede{color:var(--muted);font-size:.92rem;margin:0 0 18px;max-width:52ch}
+.taller{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.tcard{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:14px;
+  padding:12px 13px;background:rgba(16,26,46,.5)}
+.tcard .ti{font-family:var(--f-mono);font-size:.64rem;font-weight:700;padding:5px 8px;border-radius:8px;white-space:nowrap;
+  background:rgba(255,154,66,.14);color:var(--hot2);border:1px solid rgba(255,154,66,.3)}
+.tcard.w .ti{background:rgba(91,210,240,.12);color:var(--cyan2);border-color:rgba(91,210,240,.3)}
+.tcard .tt{min-width:0}
+.tcard .tt b{font-family:var(--f-display);font-size:1rem}
+.tcard .tt .d{font-size:.82rem;color:var(--muted);margin-top:3px}
+.links{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.lk{display:flex;gap:11px;align-items:center;border:1px solid var(--line2);border-radius:13px;padding:12px 13px;
+  background:rgba(16,26,46,.45);transition:.18s}
+.lk:hover{border-color:var(--cyan);background:rgba(16,26,46,.75)}
+.lk .ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:0 0 auto;
+  font-family:var(--f-mono);font-weight:700;font-size:.9rem;color:var(--ink)}
+.lk .tx b{display:block;font-family:var(--f-display);font-size:.95rem;color:var(--fg)}
+.lk .tx span{font-size:.74rem;color:var(--muted)}
+.sheet .fine{font-family:var(--f-mono);font-size:.62rem;color:var(--faint);margin-top:16px;letter-spacing:.04em}
+
+/* head + radar spider */
+.head{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.headtext{flex:1 1 160px;min-width:0}
+.card .radar{flex:0 0 auto;margin-left:auto}
+.card .radar svg{display:block}
+.rtxt{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.meta2{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.meta2 .badge{margin-top:0}
+.reach{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.04em;color:var(--muted);
+  background:rgba(91,210,240,.08);border:1px solid var(--line);padding:4px 9px;border-radius:999px;white-space:nowrap}
+.card h3 .flag{font-size:.82em}
+.ejes{display:flex;flex-wrap:wrap;gap:9px 18px;align-items:center;margin:0 0 22px;padding:13px 16px;
+  border:1px solid var(--line);border-radius:14px;background:var(--glass);backdrop-filter:blur(8px)}
+.ejes .lab{width:100%;font-family:var(--f-mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.ejes .e{display:flex;align-items:center;gap:7px;font-size:.84rem;color:var(--muted)}
+.ejes .e b{font-family:var(--f-mono);color:var(--cyan2);font-weight:700;border:1px solid var(--line2);
+  border-radius:6px;padding:0 6px;font-size:.78rem}
+/* tendencias (carrusel) */
+.trends{margin-block:8px 32px}
+.tsub{color:var(--muted);max-width:68ch;margin:-4px 0 16px;font-size:.96rem}
+.carousel-wrap{position:relative}
+.carousel{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 12px;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+.carousel::-webkit-scrollbar{height:8px}
+.carousel::-webkit-scrollbar-thumb{background:var(--line2);border-radius:999px}
+.tcardx{position:relative;flex:0 0 302px;max-width:84vw;scroll-snap-align:start;overflow:hidden;isolation:isolate;
+  border:1px solid var(--line);border-radius:16px;background:var(--glass);backdrop-filter:blur(8px);
+  padding:16px 16px 17px;display:flex;flex-direction:column;gap:8px}
+.tcardx .neb{position:absolute;inset:0;z-index:-1;opacity:.4}
+.tx-where{align-self:flex-start;font-family:var(--f-mono);font-size:.57rem;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--gold2);border:1px solid rgba(240,196,107,.3);background:rgba(240,196,107,.1);
+  padding:3px 9px;border-radius:999px}
+.tcardx h3{font-family:var(--f-display);font-weight:700;font-size:1.12rem;margin:2px 0 0;line-height:1.14;text-wrap:balance}
+.tx-que{font-size:.85rem;color:var(--muted);margin:0}
+.tx-alma,.tx-idea{font-size:.84rem;color:var(--fg);border-radius:11px;padding:10px 11px}
+.tx-alma{background:rgba(91,210,240,.08);border:1px solid rgba(91,210,240,.2)}
+.tx-idea{background:rgba(255,154,66,.09);border:1px solid rgba(255,154,66,.24);margin-top:auto}
+.tx-alma .l,.tx-idea .l{display:block;font-family:var(--f-mono);font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+.tx-alma .l{color:var(--cyan2)} .tx-idea .l{color:var(--hot2)}
+.carbtn{position:absolute;top:calc(50% - 22px);z-index:5;width:40px;height:40px;border-radius:50%;cursor:pointer;
+  border:1px solid var(--line2);background:rgba(10,16,30,.85);color:var(--fg);font-size:1.3rem;line-height:1;
+  display:grid;place-items:center;backdrop-filter:blur(6px)}
+.carbtn:hover{border-color:var(--cyan);color:var(--cyan2)}
+.carbtn.prev{left:-6px} .carbtn.next{right:-6px}
+@media (max-width:560px){ .carbtn{display:none} }
+.refreshbtn{flex:0 0 auto;border:1px solid var(--line2);background:rgba(16,26,46,.5);color:var(--muted);cursor:pointer;
+  width:34px;height:34px;border-radius:50%;font-size:1.05rem;display:grid;place-items:center}
+.refreshbtn:hover{color:var(--cyan2);border-color:var(--cyan)}
+.refreshbtn.spin{animation:spin .9s linear}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes breathe{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.85;transform:scale(1.08)}}
+@keyframes ping{0%{box-shadow:0 0 0 0 var(--hotglow)}70%{box-shadow:0 0 0 10px rgba(255,154,66,0)}100%{box-shadow:0 0 0 0 rgba(255,154,66,0)}}
+@keyframes shimmer{to{filter:hue-rotate(20deg)}}
+
+@media (max-width:900px){
+  .grid-hot{grid-template-columns:1fr}
+  .grid-watch{grid-template-columns:repeat(2,1fr)}
+  .grid-quiet{grid-template-columns:repeat(2,1fr)}
 }
-@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+@media (max-width:560px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .grid-watch{grid-template-columns:1fr}
+  .grid-quiet{grid-template-columns:1fr}
+  .links{grid-template-columns:1fr}
+  .search{margin-left:0;max-width:none;flex-basis:100%}
+  .nav .tag{display:none}
+  .head{justify-content:center}
+  .card .radar{margin:4px auto 0}
+}
+@media (prefers-reduced-motion:reduce){
+  .portal .sweep,.portal .glow,.card.hot::before,.card.hot .live .pulse{animation:none}
+}
 </style>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
 
-<header class="top"><div class="wrap">
-  <div class="brand">
-    <img class="logo" src="./eser.png" alt="ESER">
-    <span class="div"></span>
-    <span class="sub">Radar de<br>entrevistados</span>
-  </div>
-  <div class="updated">Datos al <b id="fecha">6 oct 2026</b><br>Actualización semanal</div>
-</div></header>
+<canvas id="sky"></canvas>
+<div class="veil"></div>
+
+<nav class="nav"><div class="row">
+  <img class="mark" src="./eser.png" alt="ESER" id="navmark">
+  <span class="tag">Radar de entrevistados</span>
+  <span class="spacer"></span>
+  <span class="when">Datos al <b id="fecha">—</b><br>Actualización lun · jue</span>
+  <button class="refreshbtn" id="refresh" title="Actualizar datos ahora" aria-label="Actualizar datos ahora">↻</button>
+</div></nav>
 
 <main class="wrap">
+  <header class="hero">
+    <button class="portal" id="portal" aria-label="Abrir El Taller — contenidos de ESER">
+      <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
+      <span class="sweep"></span><span class="glow"></span>
+      <img src="./eser.png" alt="ESER">
+      <span class="hint">Entrá al taller ✦</span>
+    </button>
+    <h1>El pulso del alma, semana a semana</h1>
+    <p class="sub">Cada invitado de ESER genera contenido por su cuenta. Cuando uno entra en auge
+      —un libro, una gala, una nota— es el momento de <b>subir su fragmento y surfear la ola</b>.
+      Este radar marca a quién mover ahora.</p>
+    <div class="meta"><span class="dot"></span> <span id="metaline">cargando señal…</span></div>
+    <div><button class="cta" id="cta">✦ Ver el taller de esta semana</button></div>
+  </header>
+
   <div class="kpis">
-    <div class="kpi"><div class="n" id="k-total">0</div><div class="l">Invitados</div></div>
+    <div class="kpi cyan"><div class="n" id="k-total">0</div><div class="l">Invitados</div></div>
     <div class="kpi"><div class="n" id="k-grab">0</div><div class="l">Episodios grabados</div></div>
     <div class="kpi hot"><div class="n" id="k-hot">0</div><div class="l">Olas fuertes</div></div>
     <div class="kpi gold"><div class="n" id="k-pais">0</div><div class="l">Países</div></div>
   </div>
 
-  <p class="intro">Cada invitado de ESER genera contenido por su cuenta. Cuando uno de ellos
-  está en auge —un libro, una gala, una nota—, es el momento de <b>subir su fragmento y surfear
-  la ola</b>. Este radar marca a quién mover esta semana.</p>
+  <p class="intro">El radar ordena a los invitados por su <b>momento</b>: quién está caliente ahora
+    (🔥), quién tiene potencial activable (👀) y quién está en reposo (💤). Las tarjetas más grandes
+    y encendidas son las olas que conviene mover ya.</p>
+
+  <section class="trends">
+    <div class="shead"><h2>🌐 Tendencias mundiales</h2><span class="rule"></span><span class="tag" id="trend-when">—</span></div>
+    <p class="tsub">Lo que se habla en el mundo y en las redes, leído desde el alma — con una idea lista para un vivo o podcast que sume seguidores.</p>
+    <div class="carousel-wrap">
+      <button class="carbtn prev" id="tprev" aria-label="Anterior">‹</button>
+      <div class="carousel" id="carousel"></div>
+      <button class="carbtn next" id="tnext" aria-label="Siguiente">›</button>
+    </div>
+  </section>
+
+  <div class="ejes">
+    <span class="lab">Ejes del alma · el radar de cada invitado mide 7 dimensiones</span>
+    <span class="e">✦ Espíritu</span>
+    <span class="e">✦ Amor propio</span>
+    <span class="e">✦ Resiliencia</span>
+    <span class="e">✦ Ciencia</span>
+    <span class="e">✦ Arte</span>
+    <span class="e">✦ Propósito</span>
+    <span class="e">✦ Coherencia</span>
+  </div>
 
   <div class="filters">
     <div class="chips" id="chips">
       <button class="chip" data-f="all" aria-pressed="true">Todos <span class="c" id="c-all"></span></button>
       <button class="chip" data-f="hot" aria-pressed="false">🔥 Olas fuertes <span class="c" id="c-hot"></span></button>
       <button class="chip" data-f="watch" aria-pressed="false">👀 Seguir <span class="c" id="c-watch"></span></button>
-      <button class="chip" data-f="quiet" aria-pressed="false">💤 Resto <span class="c" id="c-quiet"></span></button>
+      <button class="chip" data-f="quiet" aria-pressed="false">💤 Reposo <span class="c" id="c-quiet"></span></button>
     </div>
-    <div class="search"><input id="q" type="search" placeholder="Buscar nombre, rubro, país…" aria-label="Buscar"></div>
+    <div class="search"><input id="q" type="search" placeholder="buscar nombre, rubro, país…" aria-label="Buscar"></div>
   </div>
 
   <div id="sections"></div>
-
   <p class="note" id="note"></p>
 </main>
 
-<script>
-const FALLBACK = [
- {n:"Joaquín de Luz",p:"España",r:"Danza — ex NYCB, ex director de la Compañía Nacional de Danza; coreógrafo",e:"grab_dossier",ep:"La escalada infinita y el coraje de incomodar",tema:"Sobrevivir en la cumbre de la élite global sin perder el alma.",hito:"Estrena gala en Madrid con Vasko Vassilev (ago 2026).",ult:"Gala en Madrid que rompe fronteras entre géneros de danza (prensa, ago 2026).",opo:"Subir su fragmento aprovechando la repercusión de la gala en Madrid; etiquetarlo a él y a la Compañía Nacional de Danza.",prio:"hot"},
- {n:"Tati Ballesteros",p:"España",r:"Criminóloga (análisis de conducta), escritora, creadora de la filosofía VIRMOR",e:"grab",ep:"Romper con el piloto automático",tema:"Salir del piloto automático y el ruido digital para reconectar con el presente.",hito:"Presentación de su libro en Madrid.",ult:"Libros publicados (VIRMOR / «Honrar la vida»); presenta libro en Madrid.",opo:"Publicar su fragmento alrededor de la presentación del libro; etiquetarla y sumar el link a su libro.",prio:"hot"},
- {n:"Nicolás Coronado",p:"España",r:"Actor, modelo, artista plástico, facilitador de bienestar",e:"grab",ep:"Del ruido mediático a la paz del alma",tema:"Soltar expectativas y el éxito superficial para animarse a ser «el diferente».",hito:"",ult:"Actor en activo (hijo de José Coronado); perfil en IMDb/ecartelera.",opo:"Coordinar la salida del episodio con algún estreno o aparición suya; ángulo «el actor detrás de las cámaras».",prio:"watch"},
- {n:"Pola Jankowska",p:"España",r:"Psicóloga, autora («La estafa de la modernidad»), conferencista",e:"grab",ep:"La estafa del ego y el regreso al alma",tema:"Cómo las «relaciones líquidas» y la hiperindependencia nos desconectan; el regreso al alma.",hito:"Difusión de su libro «La estafa de la modernidad» (Planeta).",ult:"Autora con fuerte presencia en Instagram (psicología); libro en Planeta.",opo:"Aprovechar su comunidad en IG: fragmento + cita potente del episodio enlazando a su libro.",prio:"watch"},
- {n:"Kike Santander",p:"Colombia",r:"Productor musical y compositor (múltiple ganador)",e:"grab",ep:"",tema:"Referente de la música latina.",hito:"",ult:"Productor/compositor de referencia (ver lanzamientos recientes).",opo:"Episodio de alto nombre: coordinar con algún lanzamiento o efeméride musical suya.",prio:"watch"},
- {n:"Mary Munive",p:"Costa Rica",r:"Médica; Primera Vicepresidenta de Costa Rica (ex ministra de Salud/Deporte)",e:"grab",ep:"",tema:"La mujer detrás del cargo; vocación de servicio y la pandemia donde ciencia y alma se cruzaron.",hito:"Contexto electoral Costa Rica 2026.",ult:"Figura pública muy activa (vicepresidencia, actos oficiales).",opo:"Alto perfil, pero es política: cuidar el tono (humano/espiritual, no partidario) y publicar en un momento no electoral.",prio:"watch"},
- {n:"Pilar Cisneros Gallo",p:"Costa Rica",r:"Periodista y diputada",e:"grab",ep:"",tema:"La persona detrás de la figura pública; periodismo, verdad y conciencia.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Dr. Luis Corrales",p:"Costa Rica",r:"Médico oncólogo",e:"grab",ep:"",tema:"Cuando la medicina se encuentra con el alma; el cáncer y el sentido de la vida.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Norval Calvo",p:"Costa Rica",r:"Periodista, productor y humorista (Pelando El Ojo)",e:"grab",ep:"",tema:"El hombre detrás de la sonrisa; el humor como medicina del alma.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Ana Cristina Rivas y Otto Castro",p:"Costa Rica",r:"Pareja de profesionales/científicos",e:"grab",ep:"",tema:"Cuando la ciencia y el alma conversan.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Mariana Asan",p:"",r:"Por investigar",e:"grab",ep:"",tema:"",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Ligia Madrigal",p:"Costa Rica",r:"Diseñadora, empresaria, atleta de ultradistancia, montañista (Everest)",e:"dossier",ep:"",tema:"Identidad más allá del logro: «¿Cuál es tu Everest?».",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Ginnés Rodríguez",p:"Costa Rica",r:"Periodista, presentadora, productora",e:"dossier",ep:"",tema:"La persona detrás de la figura de TV.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Viviana Calderón",p:"Costa Rica",r:"Presentadora de TV",e:"dossier",ep:"",tema:"La mujer detrás de la pantalla; reinvención, maternidad y paz interior.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Anthony Venegas Abarca",p:"Costa Rica",r:"Activista; sobreviviente de abuso",e:"dossier",ep:"",tema:"Sobrevivir al abuso, hablar y sanar. (Tema sensible: cuidar el tratamiento.)",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Lucía Esquivel",p:"Costa Rica",r:"Fundadora/CEO (Natural Instinct, Casa Mundo); diseño y bienestar",e:"dossier",ep:"",tema:"Quién queda cuando se quitan los títulos y las empresas.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Carolina Jaikel",p:"Costa Rica",r:"Abogada (administración y finanzas)",e:"dossier",ep:"",tema:"La enfermedad como punto de quiebre; presente, fe y sentido.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Susana Weisleder",p:"Israel",r:"Arquitecta; estudiosa del misticismo / Cábala",e:"grab",ep:"",tema:"Intuición, misticismo y espiritualidad en el diseño y la vida.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Dra. Gabriela Morales",p:"",r:"Médica ginecóloga y sexóloga, psicobioterapeuta",e:"dossier",ep:"",tema:"Emociones y enfermedad, sexualidad, duelo y espiritualidad.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Valeria Odetti",p:"Argentina",r:"Educadora (Córdoba)",e:"dossier",ep:"",tema:"Educar desde la conciencia, el amor y el respeto por cada niño.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Marta",p:"",r:"Salud pública y social; investigación",e:"dossier",ep:"",tema:"Salud pública, medicina social y el rol de la ciencia.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Gabriela Mattea",p:"Argentina",r:"Psicóloga (Gestalt), terapeuta (Córdoba)",e:"dossier",ep:"",tema:"Puente entre psicología, espiritualidad y los desafíos humanos de hoy.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Analía Bonifay",p:"",r:"Escritora / literatura",e:"dossier",ep:"",tema:"La literatura como puerta al alma.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Dr. Diego Andrés Ghersevich",p:"",r:"Psiquiatra / salud mental",e:"dossier",ep:"",tema:"Puente entre psiquiatría, salud mental, conciencia y espiritualidad.",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Inés Siro",p:"",r:"Por investigar",e:"grab",ep:"",tema:"",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Claudio Duwarsaky",p:"",r:"Por investigar",e:"grab",ep:"",tema:"",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Gabriela Magallanes",p:"",r:"Por investigar",e:"grab",ep:"",tema:"",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Daniel Piedra",p:"",r:"Por investigar",e:"grab",ep:"",tema:"",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Magaly",p:"",r:"Por investigar",e:"grab",ep:"",tema:"",hito:"",ult:"",opo:"",prio:"quiet"},
- {n:"Ana Antic",p:"",r:"Por investigar",e:"grab",ep:"",tema:"",hito:"",ult:"",opo:"",prio:"quiet"},
-];
-let DATA = FALLBACK, FECHA = "6 oct 2026";
-
-const estadoBadge = e => e==="grab"
-  ? '<span class="badge grab">Grabado</span>'
-  : e==="grab_dossier" ? '<span class="badge grab">Grabado</span>'
-  : '<span class="badge dos">En dossier</span>';
-
-function cardHTML(g){
-  const rows=[];
-  if(g.hito) rows.push(`<div class="row"><span class="k">📣</span><span class="v"><b>Próximo hito:</b> ${g.hito}</span></div>`);
-  if(g.ult)  rows.push(`<div class="row"><span class="k">🛰️</span><span class="v"><b>Última señal:</b> ${g.ult}</span></div>`);
-  const opp = g.opo ? `<div class="opp"><div class="lab">✦ Oportunidad de amplificación</div><div class="txt">${g.opo}</div></div>`:'';
-  return `<article class="card ${g.prio}">
-    <div class="stripe"></div>
-    <div class="body">
-      <div class="top-row"><h3>${g.n}</h3>${g.p?`<span class="pais">${g.p}</span>`:''}</div>
-      <div class="rubro">${g.r}</div>
-      ${estadoBadge(g.e)}
-      ${g.ep?`<div class="ep">«${g.ep}»</div>`:''}
-      ${g.tema?`<div class="tema">${g.tema}</div>`:''}
-      <div class="rows">${rows.join('')}</div>
-      ${opp}
+<div class="overlay" id="overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="El Taller de ESER">
+  <div class="sheet">
+    <button class="x" id="closex" aria-label="Cerrar">✕</button>
+    <div class="eyebrow">El Taller · en producción</div>
+    <h2>Lo que se viene esta semana</h2>
+    <p class="lede">Las olas del radar son el material que hoy vale la pena cortar y publicar.
+      Acá están, con la acción concreta — y los canales donde sale el contenido de ESER.</p>
+    <div class="taller" id="taller"></div>
+    <div class="links">
+      <a class="lk" href="https://www.instagram.com/reneboiero/" target="_blank" rel="noopener">
+        <span class="ic" style="background:linear-gradient(135deg,#f0c46b,#ff9a42)">IG</span>
+        <span class="tx"><b>Instagram</b><span>@reneboiero</span></span></a>
+      <a class="lk" href="https://creators.spotify.com/pod/show/rene-boiero" target="_blank" rel="noopener">
+        <span class="ic" style="background:linear-gradient(135deg,#9fe9ff,#5bd2f0)">SP</span>
+        <span class="tx"><b>Podcast</b><span>El Camino de las Almas · Spotify</span></span></a>
+      <a class="lk" href="https://docs.google.com/spreadsheets/d/1Lld0mYgujAi7wvZ2_AwnSZH6Er71JJU6KswAWmNH1bA/edit" target="_blank" rel="noopener">
+        <span class="ic" style="background:linear-gradient(135deg,#bfe9c9,#6fd59a)">GS</span>
+        <span class="tx"><b>Planilla</b><span>Radar de entrevistados</span></span></a>
+      <a class="lk" href="https://claude.ai/artifact/1D7VMHRwNNF5NM3udo3H23" target="_blank" rel="noopener">
+        <span class="ic" style="background:linear-gradient(135deg,#c9b8ff,#8a6bff)">★</span>
+        <span class="tx"><b>Dashboard</b><span>versión artifact (respaldo)</span></span></a>
     </div>
-  </article>`;
+    <p class="fine">¿Sumamos YouTube u otro canal? Decime el link y lo agrego al portal.</p>
+  </div>
+</div>
+
+<script id="seed" type="application/json">{
+ "fecha": "13 oct 2026",
+ "guests": [
+  {
+   "n": "Joaquin de Luz",
+   "p": "España",
+   "r": "Danza (ex NYCB; ex director Compañia Nacional de Danza), coreografo",
+   "e": "dossier",
+   "ep": "La escalada infinita y el coraje de incomodar",
+   "tema": "Sobrevivir en la cumbre de la elite global sin perder el alma.",
+   "hito": "Sin evento proximo confirmado. Su hito (gala ConcertDanza con Vasko Vassilev) ya fue el 2 ago 2026 en Conde Duque, Madrid.",
+   "ult": "Re-verificado 13-oct: 41,6k IG. Feed de danza activo (performances en escenario, ensayos de ballet, gala); highlight nuevo 'Kennedy ce...' (posible Kennedy Center). Sin hito nuevo datado.",
+   "opo": "Clip evergreen 'danza que conversa con la musica' mientras el estreno sigue fresco en prensa; reservar una ola mayor para su proxima produccion.",
+   "prio": "watch"
+  },
+  {
+   "n": "Tati Ballesteros",
+   "p": "España",
+   "r": "Criminologa (analisis de conducta), escritora, creadora de la filosofia VIRMOR",
+   "e": "grab",
+   "ep": "Romper con el piloto automatico",
+   "tema": "Salir del piloto automatico y el ruido digital para reconectar con el presente.",
+   "hito": "Firma 'Dia de las Escritoras' en FNAC Plaza del Callao (Madrid), sabado 17 oct 2026, 12:00-14:00h, con 'Honrar la vida'. (Audiolibro disponible; paso por LIBER.)",
+   "ult": "Verificado 13-oct: 584k IG (sube ~1k). NUEVO EVENTO DATADO en su feed: firma 'Dia de las Escritoras' en FNAC Plaza del Callao (Madrid), sabado 17-oct, 12-14h, con 'Honrar la vida'. Agenda de firmas activa.",
+   "opo": "VENTANA (firma FNAC Callao, 17-oct, Madrid): cortar un reel del episodio y publicarlo esta semana pegado a la firma; etiquetar @tati_ballesteros y @fnac_es, con link al libro/audiolibro 'Honrar la vida'. Reach 584k.",
+   "prio": "hot"
+  },
+  {
+   "n": "Nicolas Coronado",
+   "p": "España",
+   "r": "Actor, modelo, artista plastico, facilitador de bienestar",
+   "e": "grab",
+   "ep": "Del ruido mediatico a la paz del alma",
+   "tema": "Soltar expectativas y el exito superficial para animarse a ser 'el diferente'.",
+   "hito": "Retiro de constelaciones familiares + activacion kundalini en @espaciotierrayoga (anunciado 15 sep; fecha del retiro a confirmar). Reaparecio en TV (#RuedaLaLetra, Telecinco).",
+   "ult": "Verificado 13-oct: 100k IG. Muy activo con contenido espiritual (post hace 2 dias sobre Jesus/espiritualidad, 695 likes); bio ahora 'Comunicador / Autoconocimiento y crecimiento personal' + @espaciotierrayoga. Retiro aun sin fecha publica.",
+   "opo": "Encaje alma/espiritualidad: ligar a 'Espacio Tierra'. Hay un retiro anunciado pero sin fecha publica clara -> confirmar fecha para mover a ola fuerte. Angulo extra: su regreso a TV.",
+   "prio": "watch"
+  },
+  {
+   "n": "Pola Jankowska",
+   "p": "España",
+   "r": "Psicologa, autora ('La estafa de la modernidad'), conferencista",
+   "e": "grab",
+   "ep": "La estafa del ego y el regreso al alma",
+   "tema": "Como las 'relaciones liquidas' y la hiperindependencia nos desconectan; el regreso al alma.",
+   "hito": "Libro 'La estafa de la modernidad' (Deusto/Planeta, 13 may 2026). El pico mediatico de sept 2026 ya cedio; sin evento datado en octubre.",
+   "ult": "Verificado 13-oct: 797k IG. Bio 'Psicologa - Mujer Tradicional - Espiritual' + libro 'La Estafa de la Modernidad'; highlights de EVENTOS/Festivales/RETIRO/Women's Circle (hace retiros). Sin nuevo hito-gancho datado.",
+   "opo": "Reach 797k: amplificacion evergreen -> cortar un reel provocador (modernidad vs vida tradicional) y pedir repost a sus seguidores; reservar una ola mayor para su proxima gira/edicion o nuevo pico de prensa.",
+   "prio": "watch"
+  },
+  {
+   "n": "Kike Santander",
+   "p": "Colombia",
+   "r": "Productor musical, compositor (multiple ganador)",
+   "e": "grab",
+   "ep": "",
+   "tema": "",
+   "hito": "14 OCT 2026 (manana): ingresa al Salon de la Fama de los Compositores Latinos (Premios La Musa, Teatro Flamingo, Miami). Confirmado por El Tiempo y El Universal.",
+   "ult": "Re-verificado 13-oct: 344k IG. SIGUE sin postear su ingreso al Salon de la Fama (manana 14-oct); ultimo post sigue siendo el reel en pareja con @adrysantander. Ventana abierta y mas urgente (evento manana).",
+   "opo": "VENTANA (14-oct, Salon de la Fama, MANANA): publicar su episodio/reel YA, angulo 'musica para sanar'; etiquetar @ksantander y @aloharmony.app. GRABADO -> PUBLICAR YA.",
+   "prio": "hot"
+  },
+  {
+   "n": "Mary Munive",
+   "p": "Costa Rica",
+   "r": "Medica; Primera Vicepresidenta de Costa Rica (ex ministra de Salud/Deporte)",
+   "e": "grab",
+   "ep": "",
+   "tema": "La mujer detras del cargo; vocacion de servicio y la pandemia donde ciencia y alma se cruzaron.",
+   "hito": "Su periodo termino el 8 may 2026 (asumio nuevo gobierno). Hoy ex vicepresidenta / ex ministra: ventana electoral CERRADA.",
+   "ult": "Verificado 13-oct: ~4,7k IG. Bio 'Madre, medica de vocacion, servidora de corazon'; contenido mixto institucional + personal/familia. Angulo humano disponible (sin ruido partidario).",
+   "opo": "Al estar fuera del cargo, el angulo humano (medica, vocacion, servicio) es ahora el natural, sin ruido partidario. Buen momento para publicar.",
+   "prio": "watch"
+  },
+  {
+   "n": "Pilar Cisneros Gallo",
+   "p": "Costa Rica",
+   "r": "Periodista y diputada",
+   "e": "grab",
+   "ep": "",
+   "tema": "La persona detras de la figura publica; periodismo, verdad y conciencia.",
+   "hito": "Diputada 2022-2026; su periodo termino en may 2026 y anuncio su retiro de la politica. Hoy ex diputada.",
+   "ult": "Verificado 13-oct: 27,5k IG. Feed sigue muy politico/combativo ('El Show de la tortura', 'La Dictadura'); sin giro al angulo humano. Bio 'Diputada 2022-2026'. Para ESER: solo angulo humano.",
+   "opo": "Fuera de la Asamblea: angulo humano (la peruana que hizo su vida en CR, vocacion periodistica) sin carga partidaria.",
+   "prio": "watch"
+  },
+  {
+   "n": "Dr. Luis Corrales",
+   "p": "Costa Rica",
+   "r": "Medico oncologo",
+   "e": "grab",
+   "ep": "",
+   "tema": "Cuando la medicina se encuentra con el alma; el cancer y el sentido de la vida.",
+   "hito": "Sin efemeride puntual. Actividad profesional continua (investigacion oncologica).",
+   "ult": "Busqueda (web + IG) sin IG personal: solo presencia institucional/academica (CIMCA, CLICaP, Clinica Biblica, Frontiers, Wikipedia). Sin cuenta personal para amplificar.",
+   "opo": "Episodio evergreen sobre muerte, esperanza y resiliencia. Gancho posible: Dia Mundial contra el Cancer (4 feb) o meses de concientizacion.",
+   "prio": "watch"
+  },
+  {
+   "n": "Norval Calvo",
+   "p": "Costa Rica",
+   "r": "Periodista, productor y humorista (Pelando El Ojo)",
+   "e": "grab",
+   "ep": "",
+   "tema": "El hombre detras de la sonrisa; el humor como medicina del alma.",
+   "hito": "Director creativo de las transmisiones de fin de ano de Repretel (desde ago-2025): alta actividad en 4o trimestre. Cumple el 10 nov.",
+   "ult": "Verificado 13-oct: @pelandoelojo 77,7k, cuenta del programa muy activa (reels diarios, varios invitados). Cuenta personal de Norval sin confirmar. Cumple 10 nov; Q4 alto por transmisiones de fin de ano.",
+   "opo": "Angulo 'el humor como lenguaje del alma' + aprendizaje tras el COVID. Posible gancho de cumpleanos (10 nov).",
+   "prio": "watch"
+  },
+  {
+   "n": "Ana Cristina Rivas y Otto Castro",
+   "p": "Costa Rica",
+   "r": "Pareja de profesionales/cientificos",
+   "e": "grab",
+   "ep": "",
+   "tema": "Cuando la ciencia y el alma conversan.",
+   "hito": "Sin efemeride puntual. Clinica 'Ortodontica' activa (Hospital La Catolica, San Jose).",
+   "ult": "Verificado 13-oct: @ortodonticacr 2k, clinica activa (reels educativos: odontologia funcional, bruxismo, apnea/roncar). Cuenta compartida de la clinica (Hospital La Catolica).",
+   "opo": "Episodio de pareja + ciencia/alma + salud integral; evergreen, ideal para una ola de 'parejas' o 'profesionales con proposito'.",
+   "prio": "watch"
+  },
+  {
+   "n": "Mariana Asan",
+   "p": "Argentina",
+   "r": "Periodista (Cadena 3 / Cadena Heat), Lic. en Comunicacion Social — Cordoba",
+   "e": "grab",
+   "ep": "",
+   "tema": "",
+   "hito": "Boda confirmada en su IG (despedida de soltera en junio). Sumada a 'la primera manana de FM Cordoba' (Cadena 3).",
+   "ult": "Verificado 13-oct: 88,5k IG (sube ~3k). Boda sigue como eje (highlights destacados 'novia' y '1 ano Facu'). Muy activa en radio (Cadena 3/Heat).",
+   "opo": "Si confirma la boda por sus redes, felicitacion genuina (historia etiquetandola), NO empujar el episodio. Si se suma algo, tono amor/union de almas.",
+   "prio": "watch"
+  },
+  {
+   "n": "Ligia Madrigal",
+   "p": "Costa Rica",
+   "r": "Diseñadora, empresaria, atleta de ultradistancia, montañista (Everest)",
+   "e": "dossier",
+   "ep": "",
+   "tema": "Identidad mas alla del logro: '¿Cual es tu Everest?'",
+   "hito": "OCTUBRE 2026: expedicion a la Piramide Carstensz (Indonesia), 4a de las Siete Cumbres. Proyecto 'Siete Cumbres' (busca patrocinio).",
+   "ult": "Confirmado hoy (12-oct): 69,9k IG. Post mas reciente (~7-oct, 4.5k+ likes): texto intimo 'Tengo 53 anos y hoy quise llamar a mi mama... extrano ser hija' (altisima resonancia emocional). Highlights fijados de Everest; expedicion Carstensz (oct) en curso.",
+   "opo": "Amplificar AHORA en paralelo a la expedicion de octubre; angulo alma/proposito + superacion ('cual es tu Everest?'). OJO: episodio aun EN DOSSIER (no grabado) -> AGENDAR LA GRABACION YA para aprovechar la ola de prensa.",
+   "prio": "hot"
+  },
+  {
+   "n": "Ginnes Rodriguez",
+   "p": "Costa Rica",
+   "r": "Periodista, presentadora, productora",
+   "e": "dossier",
+   "ep": "",
+   "tema": "La persona detras de la figura de TV.",
+   "hito": "Podcast 'Realidades' (con Lussania Viquez) al aire desde 7-oct-2026. Regreso a la TV en Canal 11 tras 5 anos.",
+   "ult": "Confirmado hoy (12-oct): 283k IG (sube ~1k). MUY activa: post de hoy (hace 8h, ~3.9k likes) aventura/canopy en familia (@chachaguarainforest); serie #EsLunes vigente. Podcast 'Realidades' con Lussania Viquez + regreso a TV Canal 11 en marcha.",
+   "opo": "Doble impulso (podcast recien lanzado + regreso a TV). OJO: episodio EN DOSSIER -> AGENDAR la grabacion YA para montar cross-promo podcast-a-podcast y apoyarse en su nueva visibilidad en TV.",
+   "prio": "hot"
+  },
+  {
+   "n": "Viviana Calderon",
+   "p": "Costa Rica",
+   "r": "Presentadora de TV",
+   "e": "dossier",
+   "ep": "",
+   "tema": "La mujer detras de la pantalla; reinvencion, maternidad y paz interior.",
+   "hito": "Conduce 'Conexion Futbol' (Repretel Canal 6), domingos 7:30pm (3a temporada, regreso 26 abr 2026).",
+   "ult": "Verificado 13-oct: 464k IG. Muy activa con patrocinios (Claro, Sparkling Ice) + contenido de deporte/naturaleza/mascotas/familia. Vigente en pantalla ('Conexion Futbol').",
+   "opo": "Vigente en pantalla; amplificar ligando al tema de las criticas/cuerpo y el deporte como bienestar.",
+   "prio": "watch"
+  },
+  {
+   "n": "Anthony Venegas Abarca",
+   "p": "Costa Rica",
+   "r": "Activista; sobreviviente de abuso",
+   "e": "dossier",
+   "ep": "",
+   "tema": "Sobrevivir al abuso, hablar y sanar. (Tema sensible: cuidar el tratamiento.)",
+   "hito": "Activismo activo: elegido por CRIN para liderar la Red de Sobrevivientes de las Americas; represento a CR en 'From Silence to Action' (proteccion de la ninez).",
+   "ult": "Verificado 13-oct: 2,5k IG. Activismo internacional en curso (viaje reciente). Bio destaca la pelicula 'El Monaguillo, el Cura y el Jardinero' y la 'Ley de Derecho al Tiempo' (CR). Angulo digno: impacto social del filme/ley.",
+   "opo": "Amplificar con MAXIMO RESPETO (sanacion, voz de sobrevivientes, impacto social del filme/ley; no el detalle del abuso) y confirmando el enfoque con el. Resonancia del documental como evergreen.",
+   "prio": "watch"
+  },
+  {
+   "n": "Lucia Esquivel",
+   "p": "Costa Rica",
+   "r": "Fundadora/CEO (Natural Instinct, Casa Mundo); diseño y bienestar",
+   "e": "dossier",
+   "ep": "",
+   "tema": "Quien queda cuando se quitan los titulos y las empresas.",
+   "hito": "Sin hito publico nuevo verificable 2026.",
+   "ult": "Verificado 13-oct: CONFIRMADO que @socanuma NO es ella: es 'Luciana Esquivel / Nina Costa' (169k, humor/entretenimiento, Valencia). La Lucia Esquivel del dossier (Natural Instinct, diseno/bienestar) sigue sin cuenta identificada.",
+   "opo": "Vaciado G (cuenta equivocada confirmada). Pedir al equipo el handle correcto de la Lucia Esquivel de Natural Instinct/Casa Mundo antes de amplificar.",
+   "prio": "quiet"
+  },
+  {
+   "n": "Carolina Jaikel",
+   "p": "Costa Rica",
+   "r": "Abogada (administracion y finanzas)",
+   "e": "dossier",
+   "ep": "",
+   "tema": "La enfermedad como punto de quiebre; presente, fe y sentido.",
+   "hito": "Nota en La Nacion (6 abr 2026) con ella y su esposo Bryan Ruiz (tema sensible: validar enfoque y consentimiento).",
+   "ult": "Verificado 13-oct: 71,7k IG. Contenido de fe y familia (hijos Benji y Leo; romeria); GoFundMe sigue en bio; socia de @cachito.deluna. Mantener enfoque sanacion/familia con consentimiento.",
+   "opo": "Angulo alma/resiliencia familiar si ella quiere hablarlo; si no, amplificar por el emprendimiento. Confirmar el enfoque con ella.",
+   "prio": "watch"
+  },
+  {
+   "n": "Susana Weisleder",
+   "p": "Israel",
+   "r": "Arquitecta; estudiosa del misticismo / Cabala",
+   "e": "grab",
+   "ep": "",
+   "tema": "Intuicion, misticismo y espiritualidad en el diseño y la vida.",
+   "hito": "Proyecto de concientizacion 'The Invisible Emergency' (salud mental) en marcha; Telly Award confirmado en su IG.",
+   "ult": "Verificado 13-oct: 1,4k IG. Highlights Telly Award + Synagogues + 'My beliefs'; arquitectura + proyecto social ('The Invisible Emergency'). Consistente.",
+   "opo": "Evergreen con respaldo nuevo (Telly Award) y un proyecto social vigente; cruce ideal con su eje 'diseno de espacios sagrados + misticismo/Cabala'.",
+   "prio": "watch"
+  },
+  {
+   "n": "Dra. Gabriela Morales",
+   "p": "",
+   "r": "Medica ginecologa y sexologa, psicobioterapeuta",
+   "e": "grab",
+   "ep": "",
+   "tema": "Emociones y enfermedad, sexualidad, duelo y espiritualidad.",
+   "hito": "Vinculo directo con Rene: talleres y vivos de 'Energia Femenina y Masculina' y 'Creencias Limitantes' junto a @reneboiero.",
+   "ult": "Verificado 13-oct: 2,4k IG (@gabyconciencia). CRUCE: aparecio como invitada en el podcast 'Te Tengo Un Cuento' de @inessheero (ep. 'Perdi un hijo pero aprendi a...'). Contenido amor/sexualidad/constelaciones. Ya colabora con @reneboiero.",
+   "opo": "Cruce potente medicina+constelaciones+sexologia; ademas ya tiene cross-link con otra invitada de ESER (Ines Sheero / 'Te Tengo Un Cuento'). Material disponible.",
+   "prio": "watch"
+  },
+  {
+   "n": "Valeria Odetti",
+   "p": "Argentina",
+   "r": "Educadora (Cordoba)",
+   "e": "dossier",
+   "ep": "",
+   "tema": "Educar desde la conciencia, el amor y el respeto por cada niño.",
+   "hito": "Inscripcion abierta a la Certificacion de Posgrado en Diseno Instruccional; 'IX Jornadas de Educacion' (era de la IA).",
+   "ult": "Verificado 13-oct: 952 IG. Contenido educacion + tecnologia (FLACSO Argentina, newsletter, 'El riesgo de la simulacion'). Evergreen, con hito academico (jornadas/certificacion).",
+   "opo": "Angulo 'educacion, tecnologia y sentido del aprendizaje'; buen contrapunto reflexivo. Evergreen, ahora con hito academico (jornadas/certificacion).",
+   "prio": "watch"
+  },
+  {
+   "n": "Marta",
+   "p": "",
+   "r": "Salud publica y social; investigacion",
+   "e": "dossier",
+   "ep": "",
+   "tema": "Salud publica, medicina social y el rol de la ciencia.",
+   "hito": "",
+   "ult": "Info insuficiente: sin apellido no es identificable en la web. Pedir apellido / institucion / tema de la entrevista.",
+   "opo": "",
+   "prio": "quiet"
+  },
+  {
+   "n": "Gabriela Mattea",
+   "p": "Argentina",
+   "r": "Psicologa (Gestalt), terapeuta (Cordoba)",
+   "e": "dossier",
+   "ep": "",
+   "tema": "Puente entre psicologia, espiritualidad y los desafios humanos de hoy.",
+   "hito": "No encontrado (IG-only).",
+   "ult": "Verificado 13-oct: 744 IG. Psicologa Gestalt; posts de talleres/clases grupales (algo mas de actividad que antes). La siguen chochigalassi y carolahormazabaliturra (circulo ESER).",
+   "opo": "Terapia Gestalt = tema nucleo alma; episodio evergreen.",
+   "prio": "quiet"
+  },
+  {
+   "n": "Analia Bonifay",
+   "p": "",
+   "r": "Escritora / literatura",
+   "e": "dossier",
+   "ep": "",
+   "tema": "La literatura como puerta al alma.",
+   "hito": "Presento 'El Jardin Robado' (conversatorio sobre narrativa familiar); club de lectura @circulodetintas (encuentro 30-sep, Villa Allende).",
+   "ult": "Verificado 13-oct: 1,5k IG. Actividad literaria constante: presentacion 'El Jardin Robado' (conversatorio narrativa familiar) y club de lectura (encuentro 30-sep, Villa Allende).",
+   "opo": "Tiene libro/actividad confirmada (Feria del Libro, club de lectura): gancho claro (literatura + interioridad).",
+   "prio": "watch"
+  },
+  {
+   "n": "Dr. Diego Andres Ghersevich",
+   "p": "",
+   "r": "Psiquiatra / salud mental",
+   "e": "dossier",
+   "ep": "",
+   "tema": "Puente entre psiquiatria, salud mental, conciencia y espiritualidad.",
+   "hito": "No encontrado.",
+   "ult": "Verificado 13-oct: cuenta sigue PRIVADA (0 publicaciones, 15 seguidores). Sin material publico para amplificar.",
+   "opo": "Salud mental = tema fuerte, pero sin material publico para amplificar hoy (cuenta privada).",
+   "prio": "quiet"
+  },
+  {
+   "n": "Ines Sheero",
+   "p": "",
+   "r": "Diseno y moda; empresaria (fundadora de SHE by Ines Sheero); host de podcast",
+   "e": "grab",
+   "ep": "",
+   "tema": "",
+   "hito": "SHE Capsule' + relanzamiento de web (early access 4 oct 2026); Amazon Prime Day activo. Podcast 'Te Tengo Un Cuento' activo.",
+   "ult": "Confirmado hoy (12-oct): 410k IG. Podcast 'Te Tengo Un Cuento' activo (ep. reciente sobre monetizacion de YouTube con Ricardo Miranda); portada digital L'Officiel Austria (fijada); feed moda/anti-aging. Lanzamiento 'SHE Capsule'/web (4-oct) ya con dias.",
+   "opo": "Ventana del lanzamiento (4-oct) cerrandose -> cross-promo podcast-a-podcast ESTA semana (reel citando su episodio, enlazar a 'Te Tengo Un Cuento', etiquetar @inessheero) o pasar a evergreen.",
+   "prio": "hot"
+  },
+  {
+   "n": "Dr. Claudio Dubersarsky",
+   "p": "",
+   "r": "Medico oncologo clinico; Director Medico BRCR; Profesor UNC",
+   "e": "grab",
+   "ep": "",
+   "tema": "",
+   "hito": "14 OCT 2026 (manana): nueva entrega de su streaming 'Resilientes'. Octubre = mes del cancer de mama (ventana ideal).",
+   "ult": "Re-verificado 13-oct: 15,4k IG (314 pub, +1). Reel mas reciente sigue siendo 'Resilientes que inspiran'. Nueva entrega manana 14-oct; octubre = mes del cancer de mama. Ventana abierta.",
+   "opo": "Eje 'medicina con alma / humanizacion del diagnostico'. VENTANA OCTUBRE (mes del cancer de mama): publicar YA, clip con relato humano ('Resilientes'). GRABADO -> PUBLICAR YA.",
+   "prio": "hot"
+  },
+  {
+   "n": "Edgar Piedra",
+   "p": "",
+   "r": "Medico (infectologia) - por confirmar",
+   "e": "grab",
+   "ep": "",
+   "tema": "",
+   "hito": "No encontrado.",
+   "ult": "Verificado 13-oct: @edgard.stone 306 seg, 8 pub (lo sigue casaalma_cordoba, circulo ESER). Se identifica como medico: posts de congresos internacionales de infectologia + poster cientifico. Avance de identificacion; cuenta aun chica.",
+   "opo": "Angulo ciencia/alma (medicina). Confirmar con el equipo identidad y tema; cuenta con poco material para amplificar hoy.",
+   "prio": "quiet"
+  },
+  {
+   "n": "Magali Gaido",
+   "p": "",
+   "r": "Periodista; Jefa de redes en La Voz (lavoz.com.ar)",
+   "e": "grab",
+   "ep": "",
+   "tema": "",
+   "hito": "Oktoberfest 2026 (Villa General Belgrano, Cordoba) en curso en octubre; rol 'Jefa de redes en La Voz' confirmado en bio.",
+   "ult": "Verificado 13-oct: 131k IG. Sigue 'Jefa de redes en @lavozcomar'; highlight 'Oktober' (Oktoberfest) vigente; dio charla en un 'Social Media Day'; ahora tambien firma como autora en Clarin.",
+   "opo": "Figura joven en alza en Cordoba; angulo historias dentro y fuera de la cancha. Gancho de temporada: su presencia en la Oktoberfest (octubre), activable esta semana.",
+   "prio": "watch"
+  },
+  {
+   "n": "Ana Antic",
+   "p": "",
+   "r": "Ex VIP stylist; CEO de ANTIC (branding y consultoria); comite MBFW Madrid",
+   "e": "grab",
+   "ep": "",
+   "tema": "",
+   "hito": "Reconocida entre las '50 mujeres influyentes' (L'Oreal Paris + HOLA); comite MBFW Madrid; pasarela S/S27 ya paso (14-19 sep).",
+   "ult": "Verificado 13-oct: 202k IG. Bio confirma comite @mbfwmadrid + '50 mujeres influyentes'; circuito de moda/branding activo.",
+   "opo": "Validacion institucional (comite MBFW Madrid) + reconocimiento '50 mujeres influyentes' + alcance 203k: publicar su episodio ligandolo a esos respaldos. Amplificacion evergreen.",
+   "prio": "watch"
+  }
+ ]
+}</script>
+<script id="seedtrends" type="application/json">{
+  "actualizado": "14 oct 2026",
+  "temas": [
+    {
+      "t": "La salud del Papa León XIV",
+      "donde": "Mundo",
+      "que": "El Papa será operado del pulmón y quedará internado; el mundo sigue el parte médico y reza (oct 2026).",
+      "alma": "La fragilidad de un líder espiritual recuerda que el cuerpo es prestado y el alma es lo que queda. Sin bajada partidaria ni morbo: fe, humildad y legado.",
+      "idea": "Vivo «¿Qué deja un líder cuando el cuerpo falla?» — fe, mortalidad y propósito. Invitá a una voz espiritual del roster."
+    },
+    {
+      "t": "Espiritualidad viral en TikTok",
+      "donde": "Redes",
+      "que": "Lo místico se volvió tendencia: «portales» de fechas, rituales y numerología explotan con #espiritualidad.",
+      "alma": "La moda mística abre la puerta, pero sin raíz es ruido. La coherencia está en distinguir el ritual que transforma del que solo entretiene.",
+      "idea": "Serie «Moda vs. raíz»: tomá un ritual viral y mostrá su sentido profundo. Cruzalo con Susana Weisleder (Cábala)."
+    },
+    {
+      "t": "Salud mental y pantallas",
+      "donde": "Mundo · Redes",
+      "que": "Informes globales 2026 vuelven a señalar el impacto de Instagram y TikTok en la salud mental, sobre todo joven.",
+      "alma": "No demonizar la red: habitarla con conciencia. «Salir del piloto automático» está más vigente que nunca.",
+      "idea": "Vivo «Desintoxicar sin huir» con Tati Ballesteros (VIRMOR): usar las redes sin perder el alma."
+    },
+    {
+      "t": "IA y lo que nos hace humanos",
+      "donde": "Mundo",
+      "que": "La IA domina la agenda 2026 (MWC, The Economist) y crece la pregunta por lo irremplazable del ser humano.",
+      "alma": "Si la máquina imita todo, lo humano se juega en la conciencia, el vínculo y el sentido. Ahí vive ESER.",
+      "idea": "Podcast «¿La IA tiene alma?»: un médico-científico del roster + una mirada espiritual, en debate con respeto."
+    },
+    {
+      "t": "Un mundo incierto, calma interior",
+      "donde": "Mundo",
+      "que": "2026 llega convulso: conflictos, elecciones y economía frágil alimentan una ansiedad colectiva.",
+      "alma": "El afuera no se controla; el centro sí. El alma como ancla en la incertidumbre, sin negar la realidad.",
+      "idea": "Serie «Ancla»: tres prácticas para sostener la calma en la tormenta, con una psicóloga del roster."
+    },
+    {
+      "t": "El amor y los vínculos líquidos",
+      "donde": "Redes",
+      "que": "«Situationships», hiperindependencia y «soft life» siguen marcando cómo se habla del amor y de la soledad.",
+      "alma": "El amor propio no es aislarse: es el piso para vincularse de verdad. Coherencia entre lo que se predica y lo que se vive.",
+      "idea": "Vivo «Amor propio ≠ soledad» con Pola Jankowska: de las relaciones líquidas al regreso al alma."
+    }
+  ]
+}</script>
+<script>
+/* ---------- datos ---------- */
+var SEED = {};
+try{ SEED = JSON.parse(document.getElementById('seed').textContent)||{}; }catch(e){ SEED={}; }
+var DATA = Array.isArray(SEED.guests)?SEED.guests:[];
+var FECHA = SEED.fecha || "—";
+
+/* ---------- utilidades ---------- */
+var norm = function(s){return (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");};
+var FLAGS = {"espana":"🇪🇸","españa":"🇪🇸","costa rica":"🇨🇷","argentina":"🇦🇷","colombia":"🇨🇴","israel":"🇮🇱"};
+function flag(p){return FLAGS[norm(p)]||"✦";}
+
+function hash(s){var h=0;s=s||"";for(var i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0;}return Math.abs(h);}
+function nebula(name){ // gradiente único por invitado, en banda fría/cálida de la marca
+  var h=hash(name); var a=(h%360); var b=(a+70+ (h>>3)%120)%360;
+  return "radial-gradient(120% 90% at "+(15+h%70)+"% -10%, hsla("+a+",70%,55%,.16), transparent 55%),"
+       + "radial-gradient(90% 80% at "+(100-(h>>2)%80)+"% 115%, hsla("+b+",65%,55%,.13), transparent 55%)";
 }
-function quietHTML(g){
-  return `<div class="q">
-    <div class="qn">${g.n}${g.p?`<span class="qp">${g.p}</span>`:''}</div>
-    <div class="qr">${g.r||'—'}</div>
-    <div class="qe">${g.e==='grab'||g.e==='grab_dossier'?'● Grabado':'○ En dossier'}</div>
-  </div>`;
+function parseReach(ult){
+  if(!ult) return null;
+  var m = ult.match(/([\d]+[.,]?[\d]*)\s*k\b/i);
+  if(m){ return Math.round(parseFloat(m[1].replace(",","."))*1000); }
+  m = ult.match(/\b([\d]{3,})\b/); // número suelto (p.ej. 952 IG)
+  if(m){ return parseInt(m[1],10); }
+  return null;
+}
+function fmtReach(n){
+  if(n==null) return null;
+  if(n>=1000){ var k=n/1000; return (k>=10?Math.round(k):k.toFixed(1).replace(/\.0$/,"")).toString()+"k"; }
+  return String(n);
+}
+function orbStyle(n){
+  var min=46,max=78,size=min;
+  if(n){ var t=Math.max(0,Math.min(1,(Math.log10(n)-2.3)/3.5)); size=Math.round(min+(max-min)*t); }
+  return {size:size};
+}
+function reachColor(prio){
+  if(prio==="hot") return "linear-gradient(140deg,#ffdc93,#ff9a42)";
+  if(prio==="watch") return "linear-gradient(140deg,#9fe9ff,#5bd2f0)";
+  return "linear-gradient(140deg,#aebccb,#6a8197)";
 }
 
-let filter="all", query="";
-const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+/* ---------- render de tarjetas ---------- */
+function orbHTML(g){
+  var n=parseReach(g.ult); if(n==null && g.prio==="quiet") return "";
+  var f=fmtReach(n); var st=orbStyle(n);
+  var inner = f? '<span class="k">'+f+'</span><span class="u">alcance</span>' : '<span class="u">·</span>';
+  return '<span class="orb" style="width:'+st.size+'px;height:'+st.size+'px;background:'+reachColor(g.prio)
+       +';box-shadow:0 0 22px '+(g.prio==="hot"?"rgba(255,154,66,.45)":g.prio==="watch"?"rgba(91,210,240,.4)":"rgba(120,150,180,.2)")+'">'+inner+'</span>';
+}
+function estado(g){ return g.e==="grab"
+  ? '<span class="badge grab">● Grabado</span>'
+  : '<span class="badge dos">○ En dossier</span>'; }
+function rowsHTML(g){
+  var r="";
+  if(g.hito) r+='<div class="r"><span class="k">◇</span><span class="v"><b>Próximo hito:</b> '+esc(g.hito)+'</span></div>';
+  if(g.ult)  r+='<div class="r"><span class="k">◉</span><span class="v"><b>Última señal:</b> '+esc(g.ult)+'</span></div>';
+  return r;
+}
+function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+var AXES=[
+ {s:"Espíritu",k:["espiritual","alma","mistic","cabala","concien","meditac","kundalini","constelac","energia","sagrad","intuic"]},
+ {s:"Amor propio",k:["amor propio","identidad","ego","autoacept","autoestim","soltar","expectativ","piloto automatic","presente","ser diferente","reinvenc","mascara","cuerpo"]},
+ {s:"Resiliencia",k:["resilien","superac","enfermedad","cancer","abuso","sobrevi","duelo","quiebre","everest","cumbre","reto","dolor","sanac","honrar la vida"]},
+ {s:"Ciencia",k:["medic","oncolog","psicolog","psiquiatr","criminolog","ciencia","educac","investigac","salud mental","terapia","diagnost","sexolog","ginecolog","cientific"]},
+ {s:"Arte",k:["danza","music","composit","moda","diseno","diseñ","literatura","escritor","arte","creativ","humor","actor","coreograf","estetic","pasarel","bailar"]},
+ {s:"Propósito",k:["vocacion","servicio","activism","impacto","proposito","comunidad","liderazg","educar","social","ayudar","pandemia","nin"]},
+ {s:"Coherencia",k:["coheren","autentic","integr","congruen","verdad","esencia","valores","sentido","ser fiel","fiel a","proposito y","alma"]}
+];
+function themeScores(g){
+  var t=norm([g.r,g.tema,g.ep,g.hito,g.ult,g.opo].join("  "));
+  var raw=AXES.map(function(ax){var c=0;ax.k.forEach(function(kw){if(t.indexOf(norm(kw))>-1)c++;});return c;});
+  var mx=Math.max.apply(null,raw);
+  if(mx<=0) return raw.map(function(){return 0.32;});
+  return raw.map(function(v){return 0.22+0.78*(v/mx);});
+}
+function radarSVG(v,maxw,color){
+  var N=v.length,cx=150,cy=100,R=72,rings=[0.4,0.7,1.0],i,a,ca,sa;
+  var grid="",spokes="",pts=[],dots="",labs="",ringpts=[[],[],[]];
+  for(i=0;i<N;i++){ a=(-90+i*360/N)*Math.PI/180; ca=Math.cos(a); sa=Math.sin(a);
+    pts.push((cx+R*v[i]*ca).toFixed(1)+","+(cy+R*v[i]*sa).toFixed(1));
+    rings.forEach(function(rr,ri){ringpts[ri].push((cx+R*rr*ca).toFixed(1)+","+(cy+R*rr*sa).toFixed(1));});
+    spokes+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+R*ca).toFixed(1)+'" y2="'+(cy+R*sa).toFixed(1)+'" stroke="rgba(130,185,225,.16)" stroke-width="1"/>';
+    var lx=cx+(R+9)*ca, ly=cy+(R+9)*sa;
+    var anc=Math.abs(ca)<0.34?"middle":(ca>0?"start":"end");
+    var dy=sa<-0.34?-1:(sa>0.34?9.5:4);
+    labs+='<text class="rtxt" x="'+lx.toFixed(1)+'" y="'+(ly+dy).toFixed(1)+'" text-anchor="'+anc+'">'+AXES[i].s+'</text>';
+  }
+  ringpts.forEach(function(rp,ri){grid+='<polygon points="'+rp.join(" ")+'" fill="none" stroke="rgba(130,185,225,.2)" stroke-width="1" opacity="'+(ri===2?0.6:0.33)+'"/>';});
+  pts.forEach(function(p){var xy=p.split(",");dots+='<circle cx="'+xy[0]+'" cy="'+xy[1]+'" r="2.4" fill="'+color+'"/>';});
+  return '<svg viewBox="0 0 300 210" style="width:'+maxw+'px;max-width:100%;height:auto" role="img" aria-label="Radar de ejes del alma de este invitado">'
+    +grid+spokes
+    +'<polygon points="'+pts.join(" ")+'" fill="'+color+'" fill-opacity="0.22" stroke="'+color+'" stroke-width="2" stroke-linejoin="round"/>'
+    +dots+labs+'</svg>';
+}
+function reachChip(g){var n=parseReach(g.ult); if(n==null) return ''; return '<span class="reach">◍ '+fmtReach(n)+' alcance</span>';}
+function cardFull(g,hot){
+  var color=hot?'#ff9a42':'#5bd2f0', mw=hot?236:188;
+  var opp=g.opo?'<div class="opp"><div class="lab">✦ '+(hot?'Oportunidad · mover ya':'Oportunidad')+'</div>'+esc(g.opo)+'</div>':'';
+  return '<article class="card '+(hot?'hot':'watch')+'"><div class="neb" style="background:'+nebula(g.n)+'"></div><div class="body">'
+    +(hot?'<div class="live"><span class="pulse"></span> Ola fuerte · ahora</div>':'')
+    +'<div class="head"><div class="headtext">'
+      +'<h3>'+esc(g.n)+' <span class="flag">'+flag(g.p)+'</span></h3>'
+      +'<div class="rubro">'+esc(g.r)+'</div>'
+      +'<div class="meta2">'+reachChip(g)+estado(g)+'</div>'
+    +'</div><div class="radar">'+radarSVG(themeScores(g),mw,color)+'</div></div>'
+    +(g.ep?'<div class="ep">«'+esc(g.ep)+'»</div>':'')
+    +(g.tema?'<div class="tema">'+esc(g.tema)+'</div>':'')
+    +'<div class="rows">'+rowsHTML(g)+'</div>'+opp+'</div></article>';
+}
+function cardHot(g){return cardFull(g,true);}
+function cardWatch(g){return cardFull(g,false);}
+function tileQuiet(g){
+  return '<div class="qtile"><div class="neb" style="background:'+nebula(g.n)+'"></div>'
+    +'<div class="qn">'+esc(g.n)+'<span class="qf">'+flag(g.p)+'</span></div>'
+    +'<div class="qr">'+esc(g.r||"—")+'</div>'
+    +'<div class="qe">'+(g.e==="grab"?"● grabado":"○ dossier")+'</div></div>';
+}
+
+/* ---------- filtros + estado ---------- */
+var filter="all", query="";
 function match(g){
-  if(query){const q=norm(query); if(!(norm(g.n).includes(q)||norm(g.r).includes(q)||norm(g.p).includes(q)||norm(g.tema).includes(q))) return false;}
+  if(query){var q=norm(query); if(!(norm(g.n).indexOf(q)>-1||norm(g.r).indexOf(q)>-1||norm(g.p).indexOf(q)>-1||norm(g.tema).indexOf(q)>-1)) return false;}
   if(filter==="all") return true;
   return g.prio===filter;
 }
-
+function sec(title,icon,tag,inner){
+  return '<section><div class="shead"><h2>'+icon+' '+title+'</h2><span class="rule"></span><span class="tag">'+tag+'</span></div>'+inner+'</section>';
+}
 function render(){
-  const list=DATA.filter(match);
-  const hot=list.filter(g=>g.prio==="hot");
-  const watch=list.filter(g=>g.prio==="watch");
-  const quiet=list.filter(g=>g.prio==="quiet");
-  let html="";
-  if(hot.length){html+=sec("🔥 Olas fuertes · mover esta semana","Momento caliente ahora",`<div class="grid">${hot.map(cardHTML).join("")}</div>`);}
-  if(watch.length){html+=sec("👀 Para seguir de cerca","Con potencial activable",`<div class="grid">${watch.map(cardHTML).join("")}</div>`);}
-  if(quiet.length){html+=sec("💤 El resto del roster","Sin señales nuevas · revisar en la actualización semanal",`<div class="qgrid">${quiet.map(quietHTML).join("")}</div>`);}
-  if(!list.length) html=`<p class="empty">No hay invitados que coincidan con la búsqueda.</p>`;
+  var list=DATA.filter(match);
+  var hot=list.filter(function(g){return g.prio==="hot";});
+  var watch=list.filter(function(g){return g.prio==="watch";});
+  var quiet=list.filter(function(g){return g.prio==="quiet";});
+  var html="";
+  if(hot.length) html+=sec("Olas fuertes","🔥","mover esta semana",'<div class="grid-hot">'+hot.map(cardHot).join("")+'</div>');
+  if(watch.length) html+=sec("Para seguir de cerca","👀","potencial activable",'<div class="grid-watch">'+watch.map(cardWatch).join("")+'</div>');
+  if(quiet.length) html+=sec("En reposo","💤","sin señales nuevas",'<div class="grid-quiet">'+quiet.map(tileQuiet).join("")+'</div>');
+  if(!list.length) html='<p class="empty">Nada coincide con la búsqueda.</p>';
   document.getElementById("sections").innerHTML=html;
 }
-function sec(title,tag,inner){
-  return `<section><div class="shead"><h2>${title}</h2><span class="rule"></span><span class="tag">${tag}</span></div>${inner}</section>`;
-}
 
+/* ---------- El Taller (portal) ---------- */
+function fillTaller(){
+  var picks=DATA.filter(function(g){return g.prio==="hot";})
+    .concat(DATA.filter(function(g){return g.prio==="watch";}).slice(0,3));
+  var el=document.getElementById("taller");
+  if(!picks.length){ el.innerHTML='<p class="lede">Esta semana no hay olas calientes. Buen momento para material evergreen.</p>'; return; }
+  el.innerHTML=picks.map(function(g){
+    var hot=g.prio==="hot";
+    var tag=hot?"🔥 publicar":"👀 preparar";
+    var d=g.opo||g.hito||g.tema||"";
+    return '<div class="tcard'+(hot?"":" w")+'"><span class="ti">'+tag+'</span>'
+      +'<div class="tt"><b>'+esc(g.n)+'</b> <span class="d">'+esc(d)+'</span></div></div>';
+  }).join("");
+}
+var overlay=document.getElementById("overlay");
+function openPortal(){ fillTaller(); overlay.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden"; }
+function closePortal(){ overlay.setAttribute("aria-hidden","true"); document.body.style.overflow=""; }
+document.getElementById("portal").addEventListener("click",openPortal);
+document.getElementById("cta").addEventListener("click",openPortal);
+document.getElementById("navmark").addEventListener("click",openPortal);
+document.getElementById("closex").addEventListener("click",closePortal);
+overlay.addEventListener("click",function(e){ if(e.target===overlay) closePortal(); });
+document.addEventListener("keydown",function(e){ if(e.key==="Escape") closePortal(); });
+
+/* ---------- tendencias (carrusel) ---------- */
+var TREND={}; try{TREND=JSON.parse(document.getElementById('seedtrends').textContent)||{};}catch(e){TREND={};}
+var TEMAS=Array.isArray(TREND.temas)?TREND.temas:[];
+function renderTrends(){
+  var el=document.getElementById('carousel'); if(!el) return;
+  var w=document.getElementById('trend-when'); if(w) w.textContent=TREND.actualizado?('actualizado '+TREND.actualizado):'tendencias';
+  if(!TEMAS.length){ el.innerHTML='<p class="empty">Sin tendencias cargadas.</p>'; return; }
+  el.innerHTML=TEMAS.map(function(x){
+    return '<article class="tcardx"><div class="neb" style="background:'+nebula(x.t||"")+'"></div>'
+      +'<span class="tx-where">'+esc(x.donde||"Mundo")+'</span>'
+      +'<h3>'+esc(x.t||"")+'</h3>'
+      +'<p class="tx-que">'+esc(x.que||"")+'</p>'
+      +'<div class="tx-alma"><span class="l">✦ Mirada del alma</span>'+esc(x.alma||"")+'</div>'
+      +'<div class="tx-idea"><span class="l">◆ Idea para vivo / podcast</span>'+esc(x.idea||"")+'</div>'
+      +'</article>';
+  }).join("");
+}
+(function(){ var p=document.getElementById('tprev'),n=document.getElementById('tnext'),c=document.getElementById('carousel');
+  function go(d){ if(c) c.scrollBy({left:d*332,behavior:'smooth'}); }
+  if(p) p.addEventListener('click',function(){go(-1);});
+  if(n) n.addEventListener('click',function(){go(1);});
+})();
+renderTrends();
+
+/* ---------- KPIs + init ---------- */
 function initAll(){
-  const grab = DATA.filter(g=>g.e==="grab"||g.e==="grab_dossier").length;
-  const paises = new Set(DATA.map(g=>g.p).filter(Boolean)).size;
-  const cnt = pr => DATA.filter(g=>g.prio===pr).length;
-  document.getElementById("fecha").textContent=FECHA;
-  document.getElementById("k-total").textContent=DATA.length;
-  document.getElementById("k-grab").textContent=grab;
-  document.getElementById("k-hot").textContent=cnt("hot");
-  document.getElementById("k-pais").textContent=paises;
-  document.getElementById("c-all").textContent=DATA.length;
-  document.getElementById("c-hot").textContent=cnt("hot");
-  document.getElementById("c-watch").textContent=cnt("watch");
-  document.getElementById("c-quiet").textContent=cnt("quiet");
-  document.getElementById("note").innerHTML='<b>Fuente:</b> planilla «ESER · Radar de Entrevistados» (drive de ESER) + investigación de los lunes y jueves (prensa, webs, Instagram, YouTube, Spotify). Las redes de cada invitado se completan en la actualización automática. Prioridad: 🔥 ola fuerte · 👀 seguir · 💤 sin novedades.';
-  document.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{
+  var grab=DATA.filter(function(g){return g.e==="grab";}).length;
+  var paises=new Set(DATA.map(function(g){return g.p;}).filter(Boolean)).size;
+  var cnt=function(p){return DATA.filter(function(g){return g.prio===p;}).length;};
+  var hot=cnt("hot");
+  set("fecha",FECHA);
+  set("k-total",DATA.length); set("k-grab",grab); set("k-hot",hot); set("k-pais",paises);
+  set("c-all",DATA.length); set("c-hot",hot); set("c-watch",cnt("watch")); set("c-quiet",cnt("quiet"));
+  document.getElementById("metaline").textContent=DATA.length+" invitados · "+hot+" olas fuertes · "+paises+" países";
+  document.getElementById("note").innerHTML='<b>Fuente:</b> planilla «ESER · Radar de Entrevistados» + investigación de los lunes y jueves (prensa, webs, Instagram). Prioridad: 🔥 ola fuerte · 👀 seguir · 💤 reposo. El alcance (orbe) se estima de los seguidores cargados en cada ficha.';
+  var chips=document.querySelectorAll(".chip");
+  chips.forEach(function(c){ c.addEventListener("click",function(){
     filter=c.dataset.f;
-    document.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed", x===c?"true":"false"));
+    chips.forEach(function(x){x.setAttribute("aria-pressed", x===c?"true":"false");});
     render();
-  }));
-  document.getElementById("q").addEventListener("input",e=>{query=e.target.value;render();});
+  });});
+  document.getElementById("q").addEventListener("input",function(e){ query=e.target.value; render(); });
   render();
 }
-// Los datos vivos vienen de radar.json (lo refresca la tarea de los lunes y jueves);
-// si no está disponible, usa los datos incluidos como respaldo.
-async function boot(){
-  try{
-    const r = await fetch('./radar.json', {cache:'no-store'});
-    if(r.ok){ const j = await r.json();
-      if(Array.isArray(j) && j.length){ DATA=j; }
-      else if(j && Array.isArray(j.guests) && j.guests.length){ DATA=j.guests; if(j.fecha) FECHA=j.fecha; }
-    }
-  }catch(e){}
-  initAll();
+function set(id,v){var el=document.getElementById(id); if(el) el.textContent=v;}
+
+/* datos vivos desde radar.json (lo refresca la tarea de lun/jue); si no, usa el seed embebido */
+function pull(){
+  fetch('./radar.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+    if(j && Array.isArray(j.guests) && j.guests.length){ DATA=j.guests; if(j.fecha) FECHA=j.fecha; initAll(); }
+  }).catch(function(){});
+  fetch('./tendencias.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+    if(j && Array.isArray(j.temas) && j.temas.length){ TREND=j; TEMAS=j.temas; renderTrends(); }
+  }).catch(function(){});
 }
-boot();
+(function boot(){
+  initAll(); pull();
+  var rb=document.getElementById('refresh');
+  if(rb) rb.addEventListener('click',function(){ rb.classList.add('spin'); pull(); setTimeout(function(){rb.classList.remove('spin');},900); });
+})();
+
+/* ---------- cielo animado ---------- */
+(function sky(){
+  var c=document.getElementById("sky"), x=c.getContext("2d"), W,H,stars=[],t=0;
+  var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  function size(){ W=c.width=innerWidth; H=c.height=innerHeight; }
+  function build(){ stars=[]; var n=Math.min(130,Math.round(W*H/16000));
+    for(var i=0;i<n;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+.3,
+      a:Math.random()*.7+.2,s:Math.random()*.25+.03,tw:Math.random()*6.28}); }
+  function frame(){
+    x.clearRect(0,0,W,H);
+    // radar sweep tenue desde arriba-centro
+    var cx=W*0.5, cy=-H*0.25, R=Math.max(W,H)*1.1;
+    var ang=t*0.0006;
+    var g=x.createRadialGradient(cx,cy,0,cx,cy,R);
+    g.addColorStop(0,"rgba(91,210,240,0.05)"); g.addColorStop(1,"rgba(91,210,240,0)");
+    x.fillStyle=g; x.beginPath(); x.moveTo(cx,cy);
+    x.arc(cx,cy,R,ang,ang+0.5); x.closePath(); x.fill();
+    for(var i=0;i<stars.length;i++){var s=stars[i];
+      s.y+=s.s; if(s.y>H+2){s.y=-2;s.x=Math.random()*W;}
+      var tw=reduce?s.a:(s.a*(0.6+0.4*Math.sin(t*0.03+s.tw)));
+      x.beginPath(); x.arc(s.x,s.y,s.r,0,6.28);
+      x.fillStyle="rgba("+(s.r>1.2?"255,220,150":"180,225,245")+","+tw+")"; x.fill();
+    }
+    t++; if(!reduce) raf=requestAnimationFrame(frame);
+  }
+  var raf; function start(){ size(); build(); if(reduce){frame();} else {cancelAnimationFrame(raf); frame();} }
+  addEventListener("resize",function(){ clearTimeout(window.__rt); window.__rt=setTimeout(start,200); });
+  start();
+})();
 </script>
+
+</body></html>
