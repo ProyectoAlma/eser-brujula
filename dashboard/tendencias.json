@@ -1,47 +1,47 @@
 {
-  "actualizado": "14 oct 2026",
-  "temas": [
-    {
-      "t": "Dia Mundial de la Salud Mental",
-      "donde": "Mundo",
-      "que": "Octubre concentra la conversacion global de salud mental (el Dia Mundial fue el 10 de octubre), con campanas de medios y organizaciones en todo el mundo.",
-      "alma": "Mas alla del diagnostico: la salud mental como camino de sentido, acompanamiento y esperanza; nombrar el dolor sin romantizarlo y recordar que sanar es posible, y casi siempre en compania.",
-      "idea": "Vivo 'Salud del alma, salud mental' con Gabriela Mattea (Gestalt): poner en palabras lo que duele. Cortar un reel con la frase mas humana del episodio."
-    },
-    {
-      "t": "Soledad en la era de la IA",
-      "donde": "Mundo · Redes",
-      "que": "Charlas (TEDx 2026), encuestas sobre la Gen Z y 'parejas' con IA, y nuevos estudios que advierten contra reemplazar el vinculo humano por companeros artificiales encienden el debate.",
-      "alma": "La tecnologia puede acompanar, pero no sustituye el encuentro real; defender el valor de mirarse a los ojos, del tiempo compartido y de la presencia como alimento del alma.",
-      "idea": "Episodio o vivo 'Conectados pero solos' con Valeria Odetti (educacion y tecnologia): que gana y que pierde el alma cuando delegamos el vinculo a una pantalla."
-    },
-    {
-      "t": "La crisis de conexion",
-      "donde": "Mundo",
-      "que": "Datos recientes (encuesta Talkspace, reportes de salud) muestran que socializamos cada vez menos y que la soledad sigue creciendo entre jovenes y adultos.",
-      "alma": "Volver a tejer comunidad: la pertenencia y el vinculo como necesidad del alma, no como lujo; pequenos gestos de reencuentro que sanan.",
-      "idea": "Episodio con Pola Jankowska sobre 'relaciones liquidas' e hiperindependencia: por que la autosuficiencia extrema nos aisla y como volver al nosotros."
-    },
-    {
-      "t": "Slow wellness y rituales restaurativos",
-      "donde": "Mundo · Redes",
-      "que": "El bienestar 2026 gira hacia el 'slow wellness': rituales restaurativos, descanso y practicas lentas frente al exceso de estimulos (tendencia destacada por el sector spa/wellness).",
-      "alma": "El descanso como acto espiritual: parar, respirar y habitar el cuerpo; el silencio y el ritual como puertas de reconexion, no como moda de consumo.",
-      "idea": "Vivo de rituales de reconexion con Nicolas Coronado (Espacio Tierra): una practica simple en vivo (respiracion) que la gente pueda repetir en casa."
-    },
-    {
-      "t": "Reavivamiento espiritual en la Gen Z",
-      "donde": "Mundo · Redes",
-      "que": "Nuevas encuestas (Barna/Gloo, sept 2026) muestran un creciente interes de la Gen Z por la fe y la espiritualidad, y la expectativa de un 'reavivamiento'.",
-      "alma": "La busqueda de trascendencia vuelve a los mas jovenes; acompanar esa sed de sentido con respeto y sin dogmatismo, abriendo espacio a distintas formas de lo sagrado.",
-      "idea": "Episodio puente de generaciones con Kike Santander ('musica para sanar'): como el arte y la fe se vuelven lenguaje espiritual para una generacion que busca sentido."
-    },
-    {
-      "t": "Detox digital y sobrecarga de dopamina",
-      "donde": "Redes",
-      "que": "Crece la conversacion sobre la 'sobrecarga de dopamina' y el detox digital: propositos de desconexion y la ciencia del descanso de pantallas ocupan medios y redes en 2026.",
-      "alma": "Salir del piloto automatico y del scroll infinito para volver al presente; recuperar la atencion como una forma de cuidado del alma.",
-      "idea": "Reel del episodio de Tati Ballesteros ('romper con el piloto automatico'): un corte potente sobre apagar el ruido digital, publicado pegado a su firma del 17-oct."
-    }
-  ]
+ "actualizado": "15 oct 2026",
+ "temas": [
+  {
+   "t": "Salud mental + IA",
+   "donde": "Mundo · Redes",
+   "que": "El Día Mundial de la Salud Mental (10 oct 2026) puso el foco este año en la relación entre inteligencia artificial y salud mental: la tecnología como apoyo posible, pero con el riesgo de reemplazar el vínculo humano.",
+   "alma": "La IA puede informar y acompañar, pero sanar sigue siendo un acto humano: la escucha y la presencia no se delegan a una pantalla.",
+   "idea": "Vivo o episodio '¿puede una app cuidar tu alma?' con los psicólogos del roster (Gabriela Mattea, Dr. Ghersevich) y el alcance de Pola Jankowska (797k) para amplificar."
+  },
+  {
+   "t": "La epidemia de la soledad",
+   "donde": "Mundo · Redes",
+   "que": "Estudios de 2026 confirman que el uso excesivo de redes eleva hasta un 40% el riesgo de soledad en jóvenes; organismos de salud pública ya hablan de 'epidemia de soledad', tan dañina como fumar.",
+   "alma": "Más conexión digital, menos vínculo real: el alma se nutre de encuentros presentes, no de likes. Volver a mirarnos a los ojos es un acto de cuidado.",
+   "idea": "Episodio/vivo 'soledad hiperconectada' con Pola Jankowska (relaciones líquidas, 797k); reel provocador 'modernidad vs vínculo'."
+  },
+  {
+   "t": "Rosalía y LUX: lo sagrado vuelve al pop",
+   "donde": "Mundo · Redes",
+   "que": "La gira LUX de Rosalía, descrita por la prensa como 'un concierto religioso sin ser un acto de fe', instaló lo místico y lo espiritual en la cultura pop global; crece el interés joven por lo sagrado.",
+   "alma": "La búsqueda de trascendencia no es moda pasajera: es hambre de alma. Se puede hablar de espiritualidad sin solemnidad ni dogma, desde la experiencia.",
+   "idea": "Reel/vivo 'la espiritualidad está de moda, ¿pero qué es lo real?' con Nicolás Coronado (autoconocimiento, 100k) o Susana Weisleder (misticismo/Cábala)."
+  },
+  {
+   "t": "La IA ya es infraestructura cotidiana",
+   "donde": "Mundo",
+   "que": "En 2026 la IA dejó de ser una función y pasó a ser infraestructura de la vida diaria y el trabajo; informes como 'New Work New World' de Cognizant proyectan billones en productividad, y crece el debate sobre qué queda de lo humano.",
+   "alma": "Si las máquinas hacen, lo humano se define por lo que siente y elige: la conciencia, el propósito y el sentido no se automatizan.",
+   "idea": "Episodio con Valeria Odetti (educación + IA + sentido del aprendizaje), que tiene jornadas sobre la era de la IA; contrapunto reflexivo."
+  },
+  {
+   "t": "Nuevos rituales de bienestar en América Latina",
+   "donde": "Redes",
+   "que": "Medios regionales (Delfino, Costa Rica) y reportes de tendencias 2026 registran un auge de nuevos rituales de bienestar en la región: del descanso consciente a lo espiritual, mezclando ciencia y tradición.",
+   "alma": "El bienestar real integra cuerpo, mente y alma; cuidarse no es consumir productos, es volver a uno mismo con intención.",
+   "idea": "Serie 'rituales con alma': vivo con la Dra. Gabriela Morales (psicobioterapeuta, ya colabora con René) o Nicolás Coronado ('Espacio Tierra')."
+  },
+  {
+   "t": "Octubre, mes del cáncer de mama: del diagnóstico a la esperanza",
+   "donde": "Mundo · Redes",
+   "que": "Octubre, mes de concientización del cáncer de mama, mantiene la salud y el acompañamiento en el centro de la conversación pública durante todo el mes.",
+   "alma": "Sin morbo: humanizar el diagnóstico, poner el foco en la esperanza y el sentido. Acompañar en la enfermedad es un acto del alma.",
+   "idea": "PUBLICAR YA el episodio del Dr. Claudio Dubersarsky ('Resilientes', medicina con alma); sumar al Dr. Luis Corrales y, con consentimiento, a Carolina Jaikel (fe y familia)."
+  }
+ ]
 }
